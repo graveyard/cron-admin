@@ -1,6 +1,11 @@
 {
 	"ImportPath": "github.com/Clever/cron-admin",
 	"GoVersion": "go1.5.1",
+	"Packages": [
+		"github.com/Clever/cron-admin",
+		"github.com/Clever/cron-admin/db",
+		"github.com/Clever/cron-admin/server"
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/gorilla/context",

@@ -1,7 +1,8 @@
 .PHONY: build run vendor
 SHELL := /bin/bash
 PKG := github.com/Clever/cron-admin
-SUBKGS := $(addprefix $(PKG)/, db server)
+SUBPKGS := $(addprefix $(PKG)/, db server)
+PKGS := $(PKG) $(SUBPKGS)
 EXECUTABLE := cron-admin
 GOLINT := $(GOPATH)/bin/golint
 GODEP := $(GOPATH)/bin/godep
@@ -12,7 +13,7 @@ ifeq "$(GOVERSION)" ""
 endif
 export GO15VENDOREXPERIMENT=1
 
-all: build clean
+all: build test
 
 $(GOLINT):
 	go get github.com/golang/lint/golint
@@ -22,6 +23,18 @@ clean:
 
 build: clean
 	go build -o build/$(EXECUTABLE) $(PKG)
+
+test: $(PKGS)
+
+$(PKGS): $(GOLINT)
+	@echo ""
+	@echo "FORMATTING $@..."
+	gofmt -w=true $(GOPATH)/src/$@/*.go
+	@echo ""
+	@echo "LINTING $@..."
+	$(GOLINT) $(GOPATH)/src/$@/*.go
+	@echo "TESTING $@..."
+	go test -v $@
 
 run: build
 	./build/$(EXECUTABLE)
