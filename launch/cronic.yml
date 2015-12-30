@@ -1,0 +1,21 @@
+run:
+  type: docker
+env:
+- MONGO_URL
+- PORT
+resources:
+  cpu: 0.1
+elbs:
+  production:
+  - cron-admin
+  staging:
+  - cron-admin-staging
+expose:
+- name: http
+  port: 80
+  bind: 80
+  proto: http
+  health_check:
+    type: http
+    path: /ping
+dependencies: []

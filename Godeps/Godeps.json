@@ -1,0 +1,24 @@
+{
+	"ImportPath": "github.com/Clever/cron-admin",
+	"GoVersion": "go1.5.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b"
+		},
+		{
+			"ImportPath": "github.com/segmentio/go-env",
+			"Comment": "v1.1.0-3-gea0600a",
+			"Rev": "ea0600a7760cd15ccca9057be4a87d68e95ee876"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2015.12.06",
+			"Rev": "e30de8ac9ae3b30df7065f766c71f88bba7d4e49"
+		}
+	]
+}
