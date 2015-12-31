@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"time"
 
 	"github.com/Clever/cron-admin/db"
 )
@@ -37,10 +38,10 @@ func jsonHandler(handler func(*http.Request) (interface{}, error)) func(http.Res
 	}
 }
 
-func SetupHandlers(r *mux.Router, db *mongodb.DB) {
+func SetupHandlers(r *mux.Router, database db.DB) {
 	r.HandleFunc("/active-jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		activeJobs, err := db.GetDistinctActiveJobs()
+		activeJobs, err := database.GetDistinctActiveJobs()
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -51,7 +52,7 @@ func SetupHandlers(r *mux.Router, db *mongodb.DB) {
 	r.HandleFunc("/job-details", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
 		job := req.URL.Query().Get("job")
-		jobDetails, err := db.GetJobDetails(job)
+		jobDetails, err := database.GetJobDetails(job)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -71,7 +72,8 @@ func SetupHandlers(r *mux.Router, db *mongodb.DB) {
 		if isActive == "false" {
 			setActive = false
 		}
-		err := db.UpdateJobActivity(jobID, setActive)
+
+		err := database.UpdateJobActivationStatus(jobID, setActive)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -93,7 +95,16 @@ func SetupHandlers(r *mux.Router, db *mongodb.DB) {
 			workload = workloadString
 		}
 
-		if insertErr := db.AddJob(function, crontime, workload); insertErr != nil {
+		cronJob := db.CronJob{
+			Function: function,
+			CronTime: crontime,
+			Workload: workload,
+			IsActive: true,
+			TimeZone: "America/Los_Angeles",
+			Created:  time.Now(),
+		}
+
+		if insertErr := database.AddJob(cronJob); insertErr != nil {
 			fmt.Printf("Error inserting job: %s", insertErr)
 			return nil, insertErr
 		}
@@ -105,12 +116,12 @@ func SetupHandlers(r *mux.Router, db *mongodb.DB) {
 func Serve(serverPort string, mongoURL string) error {
 	r := mux.NewRouter()
 
-	db, err := mongodb.New(mongoURL, "clever")
+	database, err := db.NewMongoDB(mongoURL, "clever")
 	if err != nil {
 		fmt.Println(err)
 	}
 	//setup handlers
-	SetupHandlers(r, db)
+	SetupHandlers(r, database)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()

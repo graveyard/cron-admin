@@ -1,4 +1,4 @@
-package mongodb
+package db
 
 import (
 	"gopkg.in/mgo.v2"
@@ -10,12 +10,7 @@ const (
 	cronCollection = "cronjobs"
 )
 
-type DB struct {
-	DB      *mgo.Database
-	Session *mgo.Session
-}
-
-type CronJob struct {
+type MongoCronJob struct {
 	ID       bson.ObjectId `bson:"_id,omitempty"`
 	IsActive bool          `bson:"active"`
 	Function string        `bson:"function"`
@@ -25,18 +20,46 @@ type CronJob struct {
 	Created  time.Time     `bson:"created"`
 }
 
-func New(mongoURL string, dbName string) (*DB, error) {
+func (mc *MongoCronJob) ToCronJob() CronJob {
+	return CronJob{
+		ID:       mc.ID.Hex(),
+		IsActive: mc.IsActive,
+		Function: mc.Function,
+		Workload: mc.Workload,
+		CronTime: mc.CronTime,
+		TimeZone: mc.TimeZone,
+		Created:  mc.Created,
+	}
+}
+
+type MongoDB struct {
+	Session *mgo.Session
+	DBName  string
+}
+
+func (db *MongoDB) SessionClone() *mgo.Session {
+	return db.Session.Clone()
+}
+
+func (db *MongoDB) GetCronCollection(session *mgo.Session) *mgo.Collection {
+	return session.DB(db.DBName).C(cronCollection)
+}
+
+func NewMongoDB(mongoURL string, dbName string) (*MongoDB, error) {
 	session, dialErr := mgo.Dial(mongoURL)
 	if dialErr != nil {
 		return nil, dialErr
 	}
-	cleverDb := session.DB(dbName)
-	return &DB{DB: cleverDb, Session: session}, nil
+	return &MongoDB{Session: session, DBName: dbName}, nil
 }
 
-func (db *DB) GetDistinctActiveJobs() ([]string, error) {
+func (db *MongoDB) GetDistinctActiveJobs() ([]string, error) {
 	var activeJobs []string
-	collection := db.DB.C(cronCollection)
+
+	session := db.SessionClone()
+	defer session.Close()
+	collection := db.GetCronCollection(session)
+
 	query := collection.Find(bson.M{"active": true})
 	if err := query.Distinct("function", &activeJobs); err != nil {
 		return activeJobs, err
@@ -44,18 +67,31 @@ func (db *DB) GetDistinctActiveJobs() ([]string, error) {
 	return activeJobs, nil
 }
 
-func (db *DB) GetJobDetails(job string) ([]CronJob, error) {
+func (db *MongoDB) GetJobDetails(job string) ([]CronJob, error) {
+	var mongoJobDetails []MongoCronJob
 	var jobDetails []CronJob
-	collection := db.DB.C(cronCollection)
+
+	session := db.SessionClone()
+	defer session.Close()
+	collection := db.GetCronCollection(session)
+
 	query := collection.Find(bson.M{"function": job})
-	if err := query.All(&jobDetails); err != nil {
+	if err := query.All(&mongoJobDetails); err != nil {
 		return jobDetails, err
 	}
+
+	for _, mongoJob := range mongoJobDetails {
+		jobDetails = append(jobDetails, mongoJob.ToCronJob())
+	}
+
 	return jobDetails, nil
 }
 
-func (db *DB) UpdateJobActivity(jobID string, isActive bool) error {
-	collection := db.DB.C(cronCollection)
+func (db *MongoDB) UpdateJobActivationStatus(jobID string, isActive bool) error {
+	session := db.SessionClone()
+	defer session.Close()
+	collection := db.GetCronCollection(session)
+
 	query := bson.M{"_id": bson.ObjectIdHex(jobID)}
 	change := bson.M{"$set": bson.M{"active": isActive}}
 	if err := collection.Update(query, change); err != nil {
@@ -64,23 +100,17 @@ func (db *DB) UpdateJobActivity(jobID string, isActive bool) error {
 	return nil
 }
 
-func (db *DB) AddJob(function, crontime string, workload interface{}) error {
-	collection := db.DB.C(cronCollection)
-	var workloadResult interface{}
-	// This will help determine how to submit the workload
-	switch w := workload.(type) {
-	default:
-		workloadResult = w
-	case map[string]interface{}:
-		workloadResult = bson.M(w)
-	}
+func (db *MongoDB) AddJob(job CronJob) error {
+	session := db.SessionClone()
+	defer session.Close()
+	collection := db.GetCronCollection(session)
 
-	insertJob := CronJob{
-		Function: function,
-		IsActive: true,
-		Workload: workloadResult,
-		CronTime: crontime,
-		TimeZone: "America/Los_Angeles",
+	insertJob := MongoCronJob{
+		Function: job.Function,
+		IsActive: job.IsActive,
+		Workload: job.Workload,
+		CronTime: job.CronTime,
+		TimeZone: job.TimeZone,
 		Created:  time.Now(),
 	}
 
