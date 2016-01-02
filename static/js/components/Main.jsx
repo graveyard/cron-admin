@@ -1,4 +1,3 @@
-
 var CronAdmin = React.createClass({
   getUrlPathSplit: function() {
     if (window.location.hash.length > 1) {
@@ -34,11 +33,6 @@ var CronAdmin = React.createClass({
     };
   },
 
-  navClick: function(page) {
-    this.navigate(page, {})
-    return false
-  },
-
   navigate: function(page, params) {
     this.setState({page: page, params: params, urlParams: null})
     history.pushState({page: page, params: params}, null, "#" + page)
@@ -53,8 +47,7 @@ var CronAdmin = React.createClass({
 
     return (
       <div>
-        <Navbar inverse fluid brand={<a href="#activejobs"> Cron Admin </a>}>
-        </Navbar>
+        <Navbar inverse fluid brand={<a href="#activejobs"> Cron Admin </a>} />
         {mainPage}
       </div>
     );

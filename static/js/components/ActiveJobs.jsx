@@ -22,6 +22,7 @@ var ActiveJobsList = React.createClass({
     var JobItems = (this.props.jobs.sort() || []).map(function(job) {
         return (
         <ActiveJob 
+          key={job}
           job={job}
           onJobSelected={this.props.onJobClicked}
         />
@@ -66,7 +67,6 @@ var ActiveJobs = React.createClass({
   },
 
   render: function() {
-    console.log(this)
     if (!this.state.jobs) {
       return (
         <div> Loading jobs </div>
