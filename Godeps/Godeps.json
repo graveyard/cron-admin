@@ -16,6 +16,11 @@
 			"Rev": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b"
 		},
 		{
+			"ImportPath": "github.com/robfig/cron",
+			"Comment": "v1-7-g32d9c27",
+			"Rev": "32d9c273155a0506d27cf73dd1246e86a470997e"
+		},
+		{
 			"ImportPath": "github.com/segmentio/go-env",
 			"Comment": "v1.1.0-3-gea0600a",
 			"Rev": "ea0600a7760cd15ccca9057be4a87d68e95ee876"
