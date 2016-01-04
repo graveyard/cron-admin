@@ -5,9 +5,18 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/Clever/cron-admin/db"
+)
+
+var (
+	supportedUpdateFields = map[string]bool{
+		"Workload": true,
+		"IsActive": true,
+		"CronTime": true,
+	}
 )
 
 func byteHandler(handler func(*http.Request) ([]byte, error)) func(http.ResponseWriter, *http.Request) {
@@ -41,66 +50,79 @@ func jsonHandler(handler func(*http.Request) (interface{}, error)) func(http.Res
 func SetupHandlers(r *mux.Router, database db.DB) {
 	r.HandleFunc("/active-jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		activeJobs, err := database.GetDistinctActiveJobs()
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
+		activeJobs, getErr := database.GetDistinctActiveJobs()
+		if getErr != nil {
+			fmt.Println(getErr)
+			return nil, getErr
 		}
 		return activeJobs, nil
 	})).Methods("GET")
 
-	r.HandleFunc("/job-details", jsonHandler(func(req *http.Request) (interface{}, error) {
+	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		job := req.URL.Query().Get("job")
-		jobDetails, err := database.GetJobDetails(job)
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
+		job := req.URL.Query().Get("function")
+		jobDetails, getErr := database.GetJobDetails(job)
+		if getErr != nil {
+			fmt.Println(getErr)
+			return nil, getErr
 		}
 		return jobDetails, nil
 	})).Methods("GET")
 
-	r.HandleFunc("/modify-job/{job_id}", jsonHandler(func(req *http.Request) (interface{}, error) {
+	r.HandleFunc("/jobs/{job_id}", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		jobID := mux.Vars(req)["job_id"]
 		if parseErr := req.ParseForm(); parseErr != nil {
 			fmt.Printf("Got error parsing form: %s", parseErr)
 		}
-		isActive := req.PostForm.Get("active")
-		// Active comes as a string, we need to submit a boolean
-		setActive := true
-		if isActive == "false" {
-			setActive = false
+		jobID := mux.Vars(req)["job_id"]
+
+		// Filter out post body to include only supported update fields
+		fieldMap := make(map[string]interface{})
+		for k, _ := range req.PostForm {
+			if _, ok := supportedUpdateFields[k]; !ok {
+				continue
+			}
+
+			v := req.PostForm.Get(k)
+			if k == "IsActive" {
+				// Input will be in string form, but IsActive should be boolean
+				boolVal, convErr := strconv.ParseBool(v)
+				if convErr != nil {
+					return nil, convErr
+				}
+				fieldMap[k] = boolVal
+			} else {
+				fieldMap[k] = v
+			}
 		}
 
-		err := database.UpdateJobActivationStatus(jobID, setActive)
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
+		updateErr := database.UpdateJob(jobID, fieldMap)
+		if updateErr != nil {
+			fmt.Println(updateErr)
+			return nil, updateErr
 		}
 		return nil, nil
-	})).Methods("POST")
+	})).Methods("PUT")
 
-	r.HandleFunc("/add-job", jsonHandler(func(req *http.Request) (interface{}, error) {
+	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
 		if parseErr := req.ParseForm(); parseErr != nil {
 			fmt.Printf("Got error parsing form: %s", parseErr)
 		}
-		function := req.PostForm.Get("job")
-		crontime := req.PostForm.Get("crontime")
-		workloadString := req.PostForm.Get("workload")
-
-		var workload interface{}
-		if jsonErr := json.Unmarshal([]byte(workloadString), &workload); jsonErr != nil {
-			workload = workloadString
+		function := req.PostForm.Get("Function")
+		cronTime := req.PostForm.Get("CronTime")
+		workload := req.PostForm.Get("Workload")
+		timeZone := req.PostForm.Get("TimeZone")
+		if timeZone == "" {
+			timeZone = "America/Los_Angeles"
 		}
 
 		cronJob := db.CronJob{
 			Function: function,
-			CronTime: crontime,
+			CronTime: cronTime,
 			Workload: workload,
 			IsActive: true,
-			TimeZone: "America/Los_Angeles",
+			TimeZone: timeZone,
 			Created:  time.Now(),
 		}
 

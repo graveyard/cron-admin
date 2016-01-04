@@ -9,13 +9,12 @@ var AddForm = React.createClass({
     crontime = this.refs.crontime.getInputDOMNode().value
     workload = this.refs.workload.getInputDOMNode().value
     $.ajax({
-      url: "/add-job",
+      url: "/jobs",
       type: "POST",
-      data: {job: this.props.job,crontime: crontime, workload: workload},
+      data: {Function: this.props.function, CronTime: crontime, Workload: workload},
       dataType: "json",
       success: function(data) {
-        console.log("Success!")
-        this.props.getJobDetails(this.props.job)
+        this.props.getJobDetails(this.props.function)
       }.bind(this),
       error: function(xhr, status, err) {
         api_error = xhr.responseJSON.error
@@ -56,10 +55,11 @@ var CronRow = React.createClass({
       return
     }
 
+    job = this.props.job
     $.ajax({
-      url: "/modify-job/" + this.props.job.ID,
-      type: "POST",
-      data: {active: !this.props.is_active},
+      url: "/jobs/" + this.props.job.ID,
+      type: "PUT",
+      data: {IsActive: !job.IsActive},
       dataType: "json",
       success: function(data) {
         this.props.getJobDetails(this.props.job.Function)
@@ -97,13 +97,13 @@ var JobDetails = React.createClass({
     this.setState({loading: true})
     $.ajax({
       type: "GET",
-      url: "/job-details",
-      data: {"job": job},
+      url: "/jobs",
+      data: {"function": job},
       success: function(data) {
         this.setState({loading: false, jobs: data})
       }.bind(this),
       error : function(xhr, status, err) {
-        api_err = xhr.responsJSON.error
+        api_err = xhr.responseJSON.error
         this.setState({loading: false})
         console.log("Got api error :" + api_err)
       }.bind(this)
@@ -165,7 +165,7 @@ var JobDetails = React.createClass({
       <div className="job-details">
         <p id="job-name"> {this.props.job} </p>
         {this.cronUsage()}
-        <AddForm job={this.props.job} getJobDetails={this.getJobDetails}/>
+        <AddForm function={this.props.job} getJobDetails={this.getJobDetails}/>
         {this.displayRows(true)}
         {this.displayRows(false)}
       </div>

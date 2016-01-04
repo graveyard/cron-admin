@@ -1,14 +1,40 @@
 package db
 
 import (
+	"encoding/json"
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
-const (
-	cronCollection = "cronjobs"
+var (
+	cronCollection     = "cronjobs"
+	mongoCollectionMap = map[string]string{
+		"id":       "_id",
+		"IsActive": "active",
+		"Function": "function",
+		"Workload": "workload",
+		"CronTime": "time",
+		"TimeZone": "tz",
+	}
 )
+
+type ErrUnknownField struct {
+	Field string
+}
+
+type ErrUnsupportedWorkloadType struct {
+	Type string
+}
+
+func (e ErrUnknownField) Error() string {
+	return fmt.Sprintf("Unknown cron field: %s", e.Field)
+}
+
+func (e ErrUnsupportedWorkloadType) Error() string {
+	return fmt.Sprintf("Unsupported workload type: %s", e.Type)
+}
 
 type MongoCronJob struct {
 	ID       bson.ObjectId `bson:"_id,omitempty"`
@@ -21,11 +47,20 @@ type MongoCronJob struct {
 }
 
 func (mc *MongoCronJob) ToCronJob() CronJob {
+	var workload string
+	switch t := mc.Workload.(type) {
+	case string:
+		workload = t
+	case bson.M:
+		workloadByte, _ := json.Marshal(t)
+		workload = string(workloadByte)
+	}
+
 	return CronJob{
 		ID:       mc.ID.Hex(),
 		IsActive: mc.IsActive,
 		Function: mc.Function,
-		Workload: mc.Workload,
+		Workload: workload,
 		CronTime: mc.CronTime,
 		TimeZone: mc.TimeZone,
 		Created:  mc.Created,
@@ -87,13 +122,32 @@ func (db *MongoDB) GetJobDetails(job string) ([]CronJob, error) {
 	return jobDetails, nil
 }
 
-func (db *MongoDB) UpdateJobActivationStatus(jobID string, isActive bool) error {
+func (db *MongoDB) UpdateJob(jobID string, fieldMap map[string]interface{}) error {
 	session := db.SessionClone()
 	defer session.Close()
 	collection := db.GetCronCollection(session)
 
+	updateMap := make(map[string]interface{})
+	for k, v := range fieldMap {
+		mongoKey, ok := mongoCollectionMap[k]
+		if !ok {
+			return ErrUnknownField{Field: k}
+		}
+
+		if k == "Workload" {
+			switch val := v.(type) {
+			case string:
+				updateMap[mongoKey] = parseWorkload(val)
+			default:
+				return ErrUnsupportedWorkloadType{Type: fmt.Sprintf("%T", val)}
+			}
+		} else {
+			updateMap[mongoKey] = v
+		}
+	}
+
 	query := bson.M{"_id": bson.ObjectIdHex(jobID)}
-	change := bson.M{"$set": bson.M{"active": isActive}}
+	change := bson.M{"$set": bson.M(updateMap)}
 	if err := collection.Update(query, change); err != nil {
 		return err
 	}
@@ -108,7 +162,7 @@ func (db *MongoDB) AddJob(job CronJob) error {
 	insertJob := MongoCronJob{
 		Function: job.Function,
 		IsActive: job.IsActive,
-		Workload: job.Workload,
+		Workload: parseWorkload(job.Workload),
 		CronTime: job.CronTime,
 		TimeZone: job.TimeZone,
 		Created:  time.Now(),
@@ -119,4 +173,13 @@ func (db *MongoDB) AddJob(job CronJob) error {
 	}
 
 	return nil
+}
+
+func parseWorkload(workloadString string) interface{} {
+	var jsonWorkload map[string]interface{}
+	if jsonErr := json.Unmarshal([]byte(workloadString), &jsonWorkload); jsonErr == nil {
+		return bson.M(jsonWorkload)
+	} else {
+		return workloadString
+	}
 }

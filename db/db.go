@@ -8,7 +8,7 @@ type CronJob struct {
 	ID       string
 	IsActive bool
 	Function string
-	Workload interface{}
+	Workload string
 	CronTime string
 	TimeZone string
 	Created  time.Time
@@ -17,6 +17,6 @@ type CronJob struct {
 type DB interface {
 	GetDistinctActiveJobs() ([]string, error)
 	GetJobDetails(job string) ([]CronJob, error)
-	UpdateJobActivationStatus(jobID string, isActive bool) error
+	UpdateJob(jobID string, fieldMap map[string]interface{}) error
 	AddJob(job CronJob) error
 }
