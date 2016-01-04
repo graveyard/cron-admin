@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Clever/cron-admin/db"
+	"github.com/robfig/cron"
 )
 
 var (
@@ -17,6 +19,7 @@ var (
 		"IsActive": true,
 		"CronTime": true,
 	}
+	ErrEmptyFunctionInput = errors.New("Error: Must include non-empty function")
 )
 
 func byteHandler(handler func(*http.Request) ([]byte, error)) func(http.ResponseWriter, *http.Request) {
@@ -119,7 +122,13 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 			fmt.Printf("Got error parsing form: %s", parseErr)
 		}
 		function := req.PostForm.Get("Function")
+		if function == "" {
+			return nil, ErrEmptyFunctionInput
+		}
 		cronTime := req.PostForm.Get("CronTime")
+		if _, cronErr := cron.Parse(cronTime); cronErr != nil {
+			return nil, cronErr
+		}
 		workload := req.PostForm.Get("Workload")
 		timeZone := req.PostForm.Get("TimeZone")
 		if timeZone == "" {
