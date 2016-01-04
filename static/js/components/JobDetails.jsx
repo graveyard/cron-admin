@@ -1,7 +1,7 @@
 var AddForm = React.createClass({
 
   getInitialState: function() {
-    return {clicked: false}
+    return {clicked: false, errored: false}
   },
 
   formSubmit: function(e) {
@@ -17,14 +17,21 @@ var AddForm = React.createClass({
         this.props.getJobDetails(this.props.function)
       }.bind(this),
       error: function(xhr, status, err) {
-        api_error = xhr.responseJSON.error
-        console.log("Error " + api_error)
+        this.setState({errored: true, err_msg: xhr.responseText})
       }.bind(this)
     }); 
   },
 
   addJob: function() {
     this.setState({clicked: true})
+  },
+
+  cronAlert: function() {
+    if (!this.state.errored) {
+      return
+    }
+
+    return <Alert bsStyle="danger"> {this.state.err_msg} </Alert>
   },
 
   render: function() {
@@ -35,11 +42,14 @@ var AddForm = React.createClass({
     crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)'
     workload_placeholder = 'Workload: (e.g. "--task=job" or {task:job})'
     return (
+      <div>
+      {this.cronAlert()}
       <form onSubmit={this.formSubmit} method="POST">
       <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
       <Input ref="workload" type="text" placeholder={workload_placeholder}/>
       <ButtonInput bsStyle="primary" type="submit"> Submit job </ButtonInput>
       </form>
+      </div>
     )
   }
 });
