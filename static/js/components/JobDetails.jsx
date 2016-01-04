@@ -46,18 +46,18 @@ var AddForm = React.createClass({
 
 var CronRow = React.createClass({
   getInitialState: function() {
-    return {clicked: false}
+    return {button_clicked: false, delete_clicked: false}
   },
 
-  click: function() {
-    if (!this.state.clicked) {
-      this.setState({clicked: true})
+  button_click: function() {
+    if (!this.state.button_clicked) {
+      this.setState({button_clicked: true})
       return
     }
 
     job = this.props.job
     $.ajax({
-      url: "/jobs/" + this.props.job.ID,
+      url: "/jobs/" + job.ID,
       type: "PUT",
       data: {IsActive: !job.IsActive},
       dataType: "json",
@@ -71,16 +71,38 @@ var CronRow = React.createClass({
     }); 
   },
 
+  delete_click: function() {
+    if (!this.state.delete_clicked) {
+      this.setState({delete_clicked: true})
+      return
+    }
+
+    job = this.props.job
+    $.ajax({
+      url: "/jobs/" + job.ID,
+      type: "DELETE",
+      success: function(data) {
+        this.props.getJobDetails(this.props.job.Function)
+      }.bind(this),
+      error: function(xhr, status, err) {
+        api_error = xhr.responseJSON.error
+        console.log("Error " + api_error)
+      }.bind(this)
+    });
+  },
+
   render: function() {
     job = this.props.job
     display = this.props.is_active ? "Deactivate":"Activate"
-    button_display = this.state.clicked ? "Are you sure?":display
+    button_display = this.state.button_clicked ? "Are you sure?":display
     style = this.props.is_active ? "danger":"warning"
+    delete_display = this.state.delete_clicked ? "Are you sure?":"Delete Job"
     return(
       <tr>
-        <td id="button"><Button bsStyle={style} onClick={this.click}> {button_display} </Button></td>
+        <td id="button"><Button bsStyle={style} onClick={this.button_click}> {button_display} </Button></td>
         <td>{job.CronTime}</td>
         <td id="workload">{JSON.stringify(job.Workload)}</td>
+        <td id="button"><Button bsStyle="danger" onClick={this.delete_click}> {delete_display} </Button></td>
       </tr>
     )
   }
@@ -124,6 +146,7 @@ var JobDetails = React.createClass({
           <td id="buttoncol"> </td>
           <td id="croncol"> Cron time </td>
           <td> Workload </td>
+          <td id="buttoncol"> </td>
         </tr>
     )
 
