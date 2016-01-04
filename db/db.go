@@ -19,4 +19,5 @@ type DB interface {
 	GetJobDetails(job string) ([]CronJob, error)
 	UpdateJob(jobID string, fieldMap map[string]interface{}) error
 	AddJob(job CronJob) error
+	DeleteJob(jobID string) error
 }

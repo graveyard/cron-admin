@@ -104,6 +104,15 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 		return nil, nil
 	})).Methods("PUT")
 
+	r.HandleFunc("/jobs/{job_id}", jsonHandler(func(req *http.Request) (interface{}, error) {
+		defer req.Body.Close()
+		jobID := mux.Vars(req)["job_id"]
+		if removeErr := database.DeleteJob(jobID); removeErr != nil {
+			return nil, removeErr
+		}
+		return nil, nil
+	})).Methods("DELETE")
+
 	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
 		if parseErr := req.ParseForm(); parseErr != nil {

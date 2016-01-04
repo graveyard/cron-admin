@@ -175,6 +175,13 @@ func (db *MongoDB) AddJob(job CronJob) error {
 	return nil
 }
 
+func (db *MongoDB) DeleteJob(jobID string) error {
+	session := db.SessionClone()
+	defer session.Close()
+	collection := db.GetCronCollection(session)
+	return collection.RemoveId(bson.ObjectIdHex(jobID))
+}
+
 func parseWorkload(workloadString string) interface{} {
 	var jsonWorkload map[string]interface{}
 	if jsonErr := json.Unmarshal([]byte(workloadString), &jsonWorkload); jsonErr == nil {
