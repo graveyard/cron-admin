@@ -16,12 +16,13 @@ func init() {
 
 func main() {
 	mongoURL := env.MustGet("MONGO_URL")
+
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
 		serverPort = "80"
 	}
-	serverErr := server.Serve(serverPort, mongoURL)
-	if serverErr != nil {
+
+	if serverErr := server.Serve(serverPort, mongoURL); serverErr != nil {
 		panic(serverErr)
 	}
 }

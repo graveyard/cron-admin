@@ -33,7 +33,7 @@ var AddForm = React.createClass({
     }
 
     crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)'
-    workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})'
+    workload_placeholder = 'Workload: (e.g. "--task=job" or {task:job})'
     return (
       <form onSubmit={this.formSubmit} method="POST">
       <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
@@ -120,7 +120,7 @@ var JobDetails = React.createClass({
     $.ajax({
       type: "GET",
       url: "/jobs",
-      data: {"function": job},
+      data: {"Function": job},
       success: function(data) {
         this.setState({loading: false, jobs: data})
       }.bind(this),

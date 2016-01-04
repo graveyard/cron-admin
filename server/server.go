@@ -60,7 +60,7 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 
 	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		job := req.URL.Query().Get("function")
+		job := req.URL.Query().Get("Function")
 		jobDetails, getErr := database.GetJobDetails(job)
 		if getErr != nil {
 			fmt.Println(getErr)
@@ -151,7 +151,6 @@ func Serve(serverPort string, mongoURL string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//setup handlers
 	SetupHandlers(r, database)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
