@@ -71,8 +71,11 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 
 	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, int, error) {
 		defer req.Body.Close()
-		job := req.URL.Query().Get("Function")
-		jobDetails, getErr := database.GetJobDetails(job)
+		function := req.URL.Query().Get("Function")
+		if function == "" {
+			return nil, 400, ErrEmptyFunctionInput
+		}
+		jobDetails, getErr := database.GetJobDetails(function)
 		if getErr != nil {
 			fmt.Println(getErr)
 			return nil, 500, getErr
