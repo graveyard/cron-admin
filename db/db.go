@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// CronJob is the normalized format interfacing with API handlers
 type CronJob struct {
 	ID       string
 	IsActive bool
@@ -14,6 +15,7 @@ type CronJob struct {
 	Created  time.Time
 }
 
+// DB is required type when registering API handlers
 type DB interface {
 	GetDistinctActiveFunctions() ([]string, error)
 	GetJobDetails(job string) ([]CronJob, error)

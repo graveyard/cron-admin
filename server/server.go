@@ -22,8 +22,8 @@ var (
 		"TimeZone",
 		"Created",
 	}
-	ErrEmptyFunctionInput  = fmt.Errorf("Error: Must include non-empty function")
-	ErrMissingUpdateFields = fmt.Errorf("Error: Updates require you to include the following:  %s", strings.Join(cronUpdateFields, ", "))
+	errEmptyFunctionInput  = fmt.Errorf("Error: Must include non-empty function")
+	errMissingUpdateFields = fmt.Errorf("Error: Updates require you to include the following:  %s", strings.Join(cronUpdateFields, ", "))
 )
 
 func byteHandler(handler func(*http.Request) ([]byte, int, error)) func(http.ResponseWriter, *http.Request) {
@@ -58,7 +58,7 @@ func jsonHandler(handler func(*http.Request) (interface{}, int, error)) func(htt
 	}
 }
 
-func SetupHandlers(r *mux.Router, database db.DB) {
+func setupHandlers(r *mux.Router, database db.DB) {
 	r.HandleFunc("/active-functions", jsonHandler(func(req *http.Request) (interface{}, int, error) {
 		defer req.Body.Close()
 		activeJobs, getErr := database.GetDistinctActiveFunctions()
@@ -73,7 +73,7 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 		defer req.Body.Close()
 		function := req.URL.Query().Get("Function")
 		if function == "" {
-			return nil, 400, ErrEmptyFunctionInput
+			return nil, 400, errEmptyFunctionInput
 		}
 		jobDetails, getErr := database.GetJobDetails(function)
 		if getErr != nil {
@@ -93,13 +93,13 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 		// Check all required fields are included in request
 		for _, field := range cronUpdateFields {
 			if _, ok := req.PostForm[field]; !ok {
-				return nil, 400, ErrMissingUpdateFields
+				return nil, 400, errMissingUpdateFields
 			}
 		}
 
 		function := req.PostForm.Get("Function")
 		if function == "" {
-			return nil, 400, ErrEmptyFunctionInput
+			return nil, 400, errEmptyFunctionInput
 		}
 
 		isActive, convErr := strconv.ParseBool(req.PostForm.Get("IsActive"))
@@ -146,7 +146,7 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 		}
 		function := req.PostForm.Get("Function")
 		if function == "" {
-			return nil, 400, ErrEmptyFunctionInput
+			return nil, 400, errEmptyFunctionInput
 		}
 		cronTime := req.PostForm.Get("CronTime")
 		if _, cronErr := cron.Parse(cronTime); cronErr != nil {
@@ -183,7 +183,7 @@ func Serve(serverPort string, mongoURL string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	SetupHandlers(r, database)
+	setupHandlers(r, database)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
