@@ -88,18 +88,18 @@ func NewMongoDB(mongoURL string, dbName string) (*MongoDB, error) {
 	return &MongoDB{Session: session, DBName: dbName}, nil
 }
 
-func (db *MongoDB) GetDistinctActiveJobs() ([]string, error) {
-	var activeJobs []string
+func (db *MongoDB) GetDistinctActiveFunctions() ([]string, error) {
+	var activeFunctions []string
 
 	session := db.SessionClone()
 	defer session.Close()
 	collection := db.GetCronCollection(session)
 
 	query := collection.Find(bson.M{"active": true})
-	if err := query.Distinct("function", &activeJobs); err != nil {
-		return activeJobs, err
+	if err := query.Distinct("function", &activeFunctions); err != nil {
+		return activeFunctions, err
 	}
-	return activeJobs, nil
+	return activeFunctions, nil
 }
 
 func (db *MongoDB) GetJobDetails(job string) ([]CronJob, error) {

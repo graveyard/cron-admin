@@ -11,7 +11,7 @@ var CronAdmin = React.createClass({
     keys = this.getUrlPathSplit();
     if (!keys) {
       history.replaceState(null, "Cron-Admin", "#activejobs");
-      return {page: "activejobs"};
+      return {page: "activefunctions"};
     }
     return {page: keys[0], params: {}, urlParams: keys.slice(1) };
   },
@@ -20,7 +20,7 @@ var CronAdmin = React.createClass({
     var self = this;
     window.onpopstate = function(event) {
       if (event.state) {
-        self.setState({page: "activejobs", params: {}, urlParams: null});
+        self.setState({page: "activefunctions", params: {}, urlParams: null});
         return;
       }
 
@@ -29,7 +29,7 @@ var CronAdmin = React.createClass({
         self.setState({page: keys[0], params: {}, urlParams: keys.slice(1)})
         return;
       }
-      self.setState({page: "activejobs", params: {}, urlParams: null})
+      self.setState({page: "activefunctions", params: {}, urlParams: null})
     };
   },
 
@@ -39,15 +39,15 @@ var CronAdmin = React.createClass({
   },
 
   render: function() {
-    if (this.state.page === "activejobs") {
-      mainPage = <ActiveJobs navigate={this.navigate} />
+    if (this.state.page === "activefunctions") {
+      mainPage = <ActiveFunctions navigate={this.navigate} />
     } else if (this.state.page === "jobdetails") {
       mainPage = <JobDetails navigate={this.navigate} job={this.state.params} />
     }
 
     return (
       <div>
-        <Navbar inverse fluid brand={<a href="#activejobs"> Cron Admin </a>} />
+        <Navbar inverse fluid brand={<a href="#activefunctions"> Cron Admin </a>} />
         {mainPage}
       </div>
     );

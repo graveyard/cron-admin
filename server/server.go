@@ -54,9 +54,9 @@ func jsonHandler(handler func(*http.Request) (interface{}, error)) func(http.Res
 }
 
 func SetupHandlers(r *mux.Router, database db.DB) {
-	r.HandleFunc("/active-jobs", jsonHandler(func(req *http.Request) (interface{}, error) {
+	r.HandleFunc("/active-functions", jsonHandler(func(req *http.Request) (interface{}, error) {
 		defer req.Body.Close()
-		activeJobs, getErr := database.GetDistinctActiveJobs()
+		activeJobs, getErr := database.GetDistinctActiveFunctions()
 		if getErr != nil {
 			fmt.Println(getErr)
 			return nil, getErr
