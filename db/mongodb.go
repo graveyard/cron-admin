@@ -9,15 +9,7 @@ import (
 )
 
 var (
-	cronCollection     = "cronjobs"
-	mongoCollectionMap = map[string]string{
-		"id":       "_id",
-		"IsActive": "active",
-		"Function": "function",
-		"Workload": "workload",
-		"CronTime": "time",
-		"TimeZone": "tz",
-	}
+	cronCollection = "cronjobs"
 )
 
 type ErrUnknownField struct {
@@ -44,6 +36,18 @@ type MongoCronJob struct {
 	CronTime string        `bson:"time"`
 	TimeZone string        `bson:"tz"`
 	Created  time.Time     `bson:"created"`
+}
+
+func (c CronJob) ToMongoCronJob() MongoCronJob {
+	return MongoCronJob{
+		ID:       bson.ObjectIdHex(c.ID),
+		IsActive: c.IsActive,
+		Function: c.Function,
+		Workload: parseWorkload(c.Workload),
+		CronTime: c.CronTime,
+		TimeZone: c.TimeZone,
+		Created:  c.Created,
+	}
 }
 
 func (mc *MongoCronJob) ToCronJob() CronJob {
@@ -122,32 +126,17 @@ func (db *MongoDB) GetJobDetails(job string) ([]CronJob, error) {
 	return jobDetails, nil
 }
 
-func (db *MongoDB) UpdateJob(jobID string, fieldMap map[string]interface{}) error {
+func (db *MongoDB) UpdateJob(cronJob CronJob) error {
 	session := db.SessionClone()
 	defer session.Close()
 	collection := db.GetCronCollection(session)
 
-	updateMap := make(map[string]interface{})
-	for k, v := range fieldMap {
-		mongoKey, ok := mongoCollectionMap[k]
-		if !ok {
-			return ErrUnknownField{Field: k}
-		}
+	mongoCron := cronJob.ToMongoCronJob()
+	query := bson.M{"_id": mongoCron.ID}
+	// "_id" can't be non-null when updating a mongo document
+	mongoCron.ID = bson.ObjectId("")
 
-		if k == "Workload" {
-			switch val := v.(type) {
-			case string:
-				updateMap[mongoKey] = parseWorkload(val)
-			default:
-				return ErrUnsupportedWorkloadType{Type: fmt.Sprintf("%T", val)}
-			}
-		} else {
-			updateMap[mongoKey] = v
-		}
-	}
-
-	query := bson.M{"_id": bson.ObjectIdHex(jobID)}
-	change := bson.M{"$set": bson.M(updateMap)}
+	change := bson.M{"$set": mongoCron}
 	if err := collection.Update(query, change); err != nil {
 		return err
 	}

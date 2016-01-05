@@ -69,7 +69,12 @@ var CronRow = React.createClass({
     $.ajax({
       url: "/jobs/" + job.ID,
       type: "PUT",
-      data: {IsActive: !job.IsActive},
+      data: {IsActive: !job.IsActive,
+             Function: job.Function,
+             CronTime: job.CronTime,
+             Workload: job.Workload,
+             Created: job.Created,
+             TimeZone: job.TimeZone},
       dataType: "json",
       success: function(data) {
         this.props.getJobDetails(this.props.job.Function)

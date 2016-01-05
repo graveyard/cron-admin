@@ -17,7 +17,7 @@ type CronJob struct {
 type DB interface {
 	GetDistinctActiveFunctions() ([]string, error)
 	GetJobDetails(job string) ([]CronJob, error)
-	UpdateJob(jobID string, fieldMap map[string]interface{}) error
+	UpdateJob(cronJob CronJob) error
 	AddJob(job CronJob) error
 	DeleteJob(jobID string) error
 }

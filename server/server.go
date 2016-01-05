@@ -2,11 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Clever/cron-admin/db"
@@ -14,12 +14,16 @@ import (
 )
 
 var (
-	supportedUpdateFields = map[string]bool{
-		"Workload": true,
-		"IsActive": true,
-		"CronTime": true,
+	cronUpdateFields = []string{
+		"IsActive",
+		"Function",
+		"Workload",
+		"CronTime",
+		"TimeZone",
+		"Created",
 	}
-	ErrEmptyFunctionInput = errors.New("Error: Must include non-empty function")
+	ErrEmptyFunctionInput  = fmt.Errorf("Error: Must include non-empty function")
+	ErrMissingUpdateFields = fmt.Errorf("Error: Updates require you to include the following:  %s", strings.Join(cronUpdateFields, ", "))
 )
 
 func byteHandler(handler func(*http.Request) ([]byte, int, error)) func(http.ResponseWriter, *http.Request) {
@@ -83,27 +87,39 @@ func SetupHandlers(r *mux.Router, database db.DB) {
 		}
 		jobID := mux.Vars(req)["job_id"]
 
-		// Filter out post body to include only supported update fields
-		fieldMap := make(map[string]interface{})
-		for k, _ := range req.PostForm {
-			if _, ok := supportedUpdateFields[k]; !ok {
-				continue
-			}
-
-			v := req.PostForm.Get(k)
-			if k == "IsActive" {
-				// Input will be in string form, but IsActive should be boolean
-				boolVal, convErr := strconv.ParseBool(v)
-				if convErr != nil {
-					return nil, 400, convErr
-				}
-				fieldMap[k] = boolVal
-			} else {
-				fieldMap[k] = v
+		// Check all required fields are included in request
+		for _, field := range cronUpdateFields {
+			if _, ok := req.PostForm[field]; !ok {
+				return nil, 400, ErrMissingUpdateFields
 			}
 		}
 
-		updateErr := database.UpdateJob(jobID, fieldMap)
+		function := req.PostForm.Get("Function")
+		if function == "" {
+			return nil, 400, ErrEmptyFunctionInput
+		}
+
+		isActive, convErr := strconv.ParseBool(req.PostForm.Get("IsActive"))
+		if convErr != nil {
+			return nil, 400, convErr
+		}
+
+		created, timeErr := time.Parse(time.RFC3339, req.PostForm.Get("Created"))
+		if timeErr != nil {
+			return nil, 400, timeErr
+		}
+
+		cronJob := db.CronJob{
+			ID:       jobID,
+			IsActive: isActive,
+			Function: function,
+			Workload: req.PostForm.Get("Workload"),
+			CronTime: req.PostForm.Get("CronTime"),
+			TimeZone: req.PostForm.Get("TimeZone"),
+			Created:  created,
+		}
+
+		updateErr := database.UpdateJob(cronJob)
 		if updateErr != nil {
 			fmt.Println(updateErr)
 			return nil, 500, updateErr
