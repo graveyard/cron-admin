@@ -40,9 +40,9 @@ var CronAdmin = React.createClass({
 
   render: function() {
     if (this.state.page === "activefunctions") {
-      mainPage = <ActiveFunctions navigate={this.navigate} />
+      mainPage = <ActiveFunctions navigate={this.navigate} urlParams={this.state.urlParams}/>
     } else if (this.state.page === "jobdetails") {
-      mainPage = <JobDetails navigate={this.navigate} job={this.state.params} />
+      mainPage = <JobDetails navigate={this.navigate} function={this.state.params} urlParams={this.state.urlParams}/>
     }
 
     return (

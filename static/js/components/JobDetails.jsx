@@ -126,16 +126,16 @@ var CronRow = React.createClass({
 var JobDetails = React.createClass({
 
   getInitialState: function() {
-    this.getJobDetails(this.props.job)
+    this.getJobDetails(this.props.function)
     return {loading: true, jobs: []}
   },
 
-  getJobDetails: function(job) {
+  getJobDetails: function(func) {
     this.setState({loading: true})
     $.ajax({
       type: "GET",
       url: "/jobs",
-      data: {"Function": job},
+      data: {"Function": func},
       success: function(data) {
         this.setState({loading: false, jobs: data})
       }.bind(this),
@@ -201,9 +201,9 @@ var JobDetails = React.createClass({
 
     return (
       <div className="job-details">
-        <p id="job-name"> {this.props.job} </p>
+        <p id="job-name"> {this.props.function} </p>
         {this.cronUsage()}
-        <AddForm function={this.props.job} getJobDetails={this.getJobDetails}/>
+        <AddForm function={this.props.function} getJobDetails={this.getJobDetails}/>
         {this.displayRows(true)}
         {this.displayRows(false)}
       </div>
