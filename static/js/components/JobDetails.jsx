@@ -40,7 +40,7 @@ var AddForm = React.createClass({
     }
 
     crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)'
-    workload_placeholder = 'Workload: (e.g. "--task=job" or {task:job})'
+    workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})'
     return (
       <div>
       {this.cronAlert()}
@@ -126,8 +126,16 @@ var CronRow = React.createClass({
 var JobDetails = React.createClass({
 
   getInitialState: function() {
-    this.getJobDetails(this.props.function)
-    return {loading: true, jobs: []}
+    var urlFunction = null
+    if (this.props.urlParams && this.props.urlParams.length >= 1) {
+      urlFunction = this.props.urlParams[0]
+    }
+
+    func = (urlFunction || this.props.function)
+    history.replaceState(null, null, "#jobdetails/" + func)
+
+    this.getJobDetails(func)
+    return {loading: true, jobs: [], function: func}
   },
 
   getJobDetails: function(func) {
@@ -201,9 +209,9 @@ var JobDetails = React.createClass({
 
     return (
       <div className="job-details">
-        <p id="job-name"> {this.props.function} </p>
+        <p id="job-name"> {this.state.function} </p>
         {this.cronUsage()}
-        <AddForm function={this.props.function} getJobDetails={this.getJobDetails}/>
+        <AddForm function={this.state.function} getJobDetails={this.getJobDetails}/>
         {this.displayRows(true)}
         {this.displayRows(false)}
       </div>

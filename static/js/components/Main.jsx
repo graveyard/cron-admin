@@ -10,7 +10,7 @@ var CronAdmin = React.createClass({
   getInitialState: function() {
     keys = this.getUrlPathSplit();
     if (!keys) {
-      history.replaceState(null, "Cron-Admin", "#activejobs");
+      history.replaceState(null, "Cron-Admin", "#activefunctions");
       return {page: "activefunctions"};
     }
     return {page: keys[0], params: {}, urlParams: keys.slice(1) };
