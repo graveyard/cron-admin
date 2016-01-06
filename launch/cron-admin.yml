@@ -5,11 +5,10 @@ env:
 - PORT
 resources:
   cpu: 0.1
+  memory: 100
 elbs:
   production:
   - cron-admin
-  staging:
-  - cron-admin-staging
 expose:
 - name: http
   port: 80

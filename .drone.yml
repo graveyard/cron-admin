@@ -1,0 +1,21 @@
+image: clever/drone-go:1.5
+script:
+- ./drone.sh
+publish:
+  catapult:
+    url: $$catapult_url
+    application: "cron-admin"
+  docker:
+    docker_version: 1.7.1
+    docker_host: $$docker_server
+    email: $$docker_email
+    username: $$docker_username
+    password: $$docker_password
+    image_name: clever/cron-admin
+    registry_login: true
+    tags:
+      - $(git rev-parse --short HEAD)
+    when:
+      branch: master
+services:
+- clever/mongo:2.4
