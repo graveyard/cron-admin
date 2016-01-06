@@ -29,12 +29,11 @@ var (
 func byteHandler(handler func(*http.Request) ([]byte, int, error)) func(http.ResponseWriter, *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		data, statusCode, err := handler(req)
+		rw.WriteHeader(statusCode)
 		if err != nil {
 			fmt.Printf("Received handler err: %s\n", err)
-			rw.WriteHeader(statusCode)
 			rw.Write([]byte(err.Error()))
 		} else {
-			rw.WriteHeader(statusCode)
 			rw.Write(data)
 		}
 	}
