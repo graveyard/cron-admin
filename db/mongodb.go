@@ -92,8 +92,8 @@ func (db *MongoDB) GetDistinctActiveFunctions() ([]string, error) {
 	return activeFunctions, nil
 }
 
-// GetJobDetails returns all jobs associated with a function
-func (db *MongoDB) GetJobDetails(function string) ([]CronJob, error) {
+// GetJobs returns all jobs associated with a function
+func (db *MongoDB) GetJobs(function string) ([]CronJob, error) {
 	var mongoJobDetails []mongoCronJob
 	var jobDetails []CronJob
 

@@ -75,7 +75,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 		if function == "" {
 			return nil, 400, errEmptyFunctionInput
 		}
-		jobDetails, getErr := database.GetJobDetails(function)
+		jobDetails, getErr := database.GetJobs(function)
 		if getErr != nil {
 			fmt.Println(getErr)
 			return nil, 500, getErr

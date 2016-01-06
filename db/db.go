@@ -18,7 +18,7 @@ type CronJob struct {
 // DB is required type when registering API handlers
 type DB interface {
 	GetDistinctActiveFunctions() ([]string, error)
-	GetJobDetails(job string) ([]CronJob, error)
+	GetJobs(function string) ([]CronJob, error)
 	UpdateJob(cronJob CronJob) error
 	AddJob(job CronJob) error
 	DeleteJob(jobID string) error
