@@ -12,6 +12,7 @@ ifeq "$(GOVERSION)" ""
 	$(error must be running Go 1.5)
 endif
 export GO15VENDOREXPERIMENT=1
+export MONGO_TEST_DB ?= 127.0.0.1:27017
 
 all: build test
 

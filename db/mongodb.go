@@ -22,8 +22,13 @@ type mongoCronJob struct {
 }
 
 func (c CronJob) toMongoCronJob() mongoCronJob {
+	var id bson.ObjectId
+	if c.ID != "" {
+		id = bson.ObjectIdHex(c.ID)
+	}
+
 	return mongoCronJob{
-		ID:       bson.ObjectIdHex(c.ID),
+		ID:       id,
 		IsActive: c.IsActive,
 		Function: c.Function,
 		Workload: parseWorkload(c.Workload),
@@ -65,6 +70,9 @@ func (db *MongoDB) sessionClone() *mgo.Session {
 }
 
 func (db *MongoDB) getCronCollection(session *mgo.Session) *mgo.Collection {
+	if session == nil {
+		session = db.session
+	}
 	return session.DB(db.dbName).C(cronCollection)
 }
 
