@@ -2,7 +2,7 @@ var ActiveFunction = React.createClass({
   
   onSelected: function() {
     if (this.props.onFunctionSelected) {
-      this.props.onFunctionSelected(this.props.func)
+      this.props.onFunctionSelected(this.props.func);
     }
   },
   
@@ -10,10 +10,10 @@ var ActiveFunction = React.createClass({
       return (
         <div onClick={this.onSelected}>
         <tr>
-          <td> {this.props.func} </td>
+          <td>{this.props.func}</td>
         </tr>
         </div>
-      )
+      );
   }
 });
 
@@ -32,13 +32,13 @@ var ActiveFunctionsList = React.createClass({
       <tbody>
       {FunctionItems}
       </tbody>
-    )
+    );
   }
 });
 
 var ActiveFunctions = React.createClass({
   getInitialState: function() {
-    this.getActiveFunctions()
+    this.getActiveFunctions();
     return {};
   },
 
@@ -47,30 +47,29 @@ var ActiveFunctions = React.createClass({
       type: "GET",
       url: "/active-functions",
       success: function(data) {
-        this.setState({functions: data})
+        this.setState({functions: data});
       }.bind(this),
       error : function(xhr, status, err) {
-        api_err = xhr.responsJSON.error
-        console.log("Got api error :" + api_err)
+        console.log("Got api error :" + xhr.responseText);
       }.bind(this)
     });
   },
 
   onFunctionClicked: function(func) {
-    this.props.navigate("jobdetails", func)
+    this.props.navigate("jobdetails", func);
   },
 
   addFunction: function(e) {
-    e.preventDefault()
-    func = this.refs.functionName.getInputDOMNode().value
-    this.props.navigate("jobdetails", func)
+    e.preventDefault();
+    var func = this.refs.functionName.getInputDOMNode().value;
+    this.props.navigate("jobdetails", func);
   },
 
   render: function() {
     if (!this.state.functions) {
       return (
-        <div> Loading functions </div>
-      )
+        <div>Loading functions</div>
+      );
     }
 
     return (
@@ -89,6 +88,6 @@ var ActiveFunctions = React.createClass({
           </Table>
         </div>
       </div>
-    )
+    );
   }
 });

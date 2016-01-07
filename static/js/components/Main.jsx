@@ -1,14 +1,13 @@
 var CronAdmin = React.createClass({
   getUrlPathSplit: function() {
     if (window.location.hash.length > 1) {
-      keys = window.location.hash.slice(1).split("/");
-      return keys;
+      return window.location.hash.slice(1).split("/");
     }
     return null;
   },
 
   getInitialState: function() {
-    keys = this.getUrlPathSplit();
+    var keys = this.getUrlPathSplit();
     if (!keys) {
       history.replaceState(null, "Cron-Admin", "#activefunctions");
       return {page: "activefunctions"};
@@ -24,30 +23,31 @@ var CronAdmin = React.createClass({
         return;
       }
 
-      keys = self.getUrlPathSplit();
+      var keys = self.getUrlPathSplit();
       if (keys) {
-        self.setState({page: keys[0], params: {}, urlParams: keys.slice(1)})
+        self.setState({page: keys[0], params: {}, urlParams: keys.slice(1)});
         return;
       }
-      self.setState({page: "activefunctions", params: {}, urlParams: null})
+      self.setState({page: "activefunctions", params: {}, urlParams: null});
     };
   },
 
   navigate: function(page, params) {
-    this.setState({page: page, params: params, urlParams: null})
-    history.pushState({page: page, params: params}, null, "#" + page)
+    this.setState({page: page, params: params, urlParams: null});
+    history.pushState({page: page, params: params}, null, "#" + page);
   },
 
   render: function() {
+    var mainPage;
     if (this.state.page === "activefunctions") {
-      mainPage = <ActiveFunctions navigate={this.navigate} urlParams={this.state.urlParams}/>
+      mainPage = <ActiveFunctions navigate={this.navigate} urlParams={this.state.urlParams}/>;
     } else if (this.state.page === "jobdetails") {
-      mainPage = <JobDetails navigate={this.navigate} function={this.state.params} urlParams={this.state.urlParams}/>
+      mainPage = <JobDetails navigate={this.navigate} function={this.state.params} urlParams={this.state.urlParams}/>;
     }
 
     return (
       <div>
-        <Navbar inverse fluid brand={<a href="#activefunctions"> Cron Admin </a>} />
+        <Navbar inverse fluid brand={<a href="#activefunctions">Cron Admin</a>} />
         {mainPage}
       </div>
     );

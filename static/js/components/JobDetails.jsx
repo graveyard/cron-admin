@@ -1,71 +1,70 @@
 var AddForm = React.createClass({
 
   getInitialState: function() {
-    return {clicked: false, errored: false}
+    return {clicked: false, errored: false};
   },
 
   formSubmit: function(e) {
-    e.preventDefault()
-    crontime = this.refs.crontime.getInputDOMNode().value
-    workload = this.refs.workload.getInputDOMNode().value
+    e.preventDefault();
+    var crontime = this.refs.crontime.getInputDOMNode().value;
+    var workload = this.refs.workload.getInputDOMNode().value;
     $.ajax({
       url: "/jobs",
       type: "POST",
       data: {Function: this.props.function, CronTime: crontime, Workload: workload},
       dataType: "json",
       success: function(data) {
-        this.props.getJobDetails(this.props.function)
+        this.props.getJobDetails(this.props.function);
       }.bind(this),
       error: function(xhr, status, err) {
-        this.setState({errored: true, err_msg: xhr.responseText})
+        this.setState({errored: true, err_msg: xhr.responseText});
       }.bind(this)
     }); 
   },
 
   addJob: function() {
-    this.setState({clicked: true})
+    this.setState({clicked: true});
   },
 
   cronAlert: function() {
     if (!this.state.errored) {
-      return
+      return;
     }
-
-    return <Alert bsStyle="danger"> {this.state.err_msg} </Alert>
+    return <Alert bsStyle="danger">{this.state.err_msg}</Alert>;
   },
 
   render: function() {
     if (!this.state.clicked) {
-      return (<div><Button bsStyle="primary" onClick={this.addJob}> Add job </Button><p></p></div>)
+      return (<div><Button bsStyle="primary" onClick={this.addJob}>Add job</Button><p></p></div>);
     }
 
-    crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)'
-    workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})'
+    var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)';
+    var workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})';
     return (
       <div>
-      {this.cronAlert()}
-      <form onSubmit={this.formSubmit} method="POST">
-      <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
-      <Input ref="workload" type="text" placeholder={workload_placeholder}/>
-      <ButtonInput bsStyle="primary" type="submit"> Submit job </ButtonInput>
-      </form>
+        {this.cronAlert()}
+        <form onSubmit={this.formSubmit} method="POST">
+        <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
+        <Input ref="workload" type="text" placeholder={workload_placeholder}/>
+        <ButtonInput bsStyle="primary" type="submit">Submit job</ButtonInput>
+        </form>
       </div>
-    )
+    );
   }
 });
 
 var CronRow = React.createClass({
   getInitialState: function() {
-    return {button_clicked: false, delete_clicked: false}
+    return {button_clicked: false, delete_clicked: false};
   },
 
-  button_click: function() {
-    if (!this.state.button_clicked) {
-      this.setState({button_clicked: true})
-      return
+  toggle_activated_click: function() {
+    if (!this.state.activated_clicked) {
+      this.setState({activated_clicked: true});
+      return;
     }
 
-    job = this.props.job
+    var job = this.props.job;
     $.ajax({
       url: "/jobs/" + job.ID,
       type: "PUT",
@@ -77,144 +76,140 @@ var CronRow = React.createClass({
              TimeZone: job.TimeZone},
       dataType: "json",
       success: function(data) {
-        this.props.getJobDetails(this.props.job.Function)
+        this.props.getJobDetails(this.props.job.Function);
       }.bind(this),
       error: function(xhr, status, err) {
-        api_error = xhr.responseJSON.error
-        console.log("Error " + api_error)
+        console.log("Error " + xhr.responseText);
       }.bind(this)
     }); 
   },
 
   delete_click: function() {
     if (!this.state.delete_clicked) {
-      this.setState({delete_clicked: true})
-      return
+      this.setState({delete_clicked: true});
+      return;
     }
 
-    job = this.props.job
+    var job = this.props.job;
     $.ajax({
       url: "/jobs/" + job.ID,
       type: "DELETE",
       success: function(data) {
-        this.props.getJobDetails(this.props.job.Function)
+        this.props.getJobDetails(this.props.job.Function);
       }.bind(this),
       error: function(xhr, status, err) {
-        api_error = xhr.responseJSON.error
-        console.log("Error " + api_error)
+        console.log("Error " + xhr.responseText);
       }.bind(this)
     });
   },
 
   render: function() {
-    job = this.props.job
-    display = this.props.is_active ? "Deactivate":"Activate"
-    button_display = this.state.button_clicked ? "Are you sure?":display
-    style = this.props.is_active ? "danger":"warning"
-    delete_display = this.state.delete_clicked ? "Are you sure?":"Delete Job"
+    var job = this.props.job;
+    var display = this.props.job.IsActive ? "Deactivate":"Activate";
+    var button_display = this.state.activated_clicked ? "Are you sure?":display;
+    var style = this.props.job.IsActive ? "danger":"warning";
+    var delete_display = this.state.delete_clicked ? "Are you sure?":"Delete Job";
     return(
       <tr>
-        <td id="button"><Button bsStyle={style} onClick={this.button_click}> {button_display} </Button></td>
+        <td id="button"><Button bsStyle={style} onClick={this.toggle_activated_click}>{button_display}</Button></td>
         <td>{job.CronTime}</td>
-        <td id="workload">{JSON.stringify(job.Workload)}</td>
-        <td id="button"><Button bsStyle="danger" onClick={this.delete_click}> {delete_display} </Button></td>
+        <td id="workload">{job.Workload}</td>
+        <td id="button"><Button bsStyle="danger" onClick={this.delete_click}>{delete_display}</Button></td>
       </tr>
-    )
+    );
   }
 });
 
 var JobDetails = React.createClass({
 
   getInitialState: function() {
-    var urlFunction = null
+    var urlFunction = null;
     if (this.props.urlParams && this.props.urlParams.length >= 1) {
-      urlFunction = this.props.urlParams[0]
+      urlFunction = this.props.urlParams[0];
     }
 
-    func = (urlFunction || this.props.function)
-    history.replaceState(null, null, "#jobdetails/" + func)
+    var func = (urlFunction || this.props.function);
+    history.replaceState(null, null, "#jobdetails/" + func);
 
-    this.getJobDetails(func)
-    return {loading: true, jobs: [], function: func}
+    this.getJobDetails(func);
+    return {loading: true, jobs: [], function: func};
   },
 
   getJobDetails: function(func) {
-    this.setState({loading: true})
+    this.setState({loading: true});
     $.ajax({
       type: "GET",
       url: "/jobs",
       data: {"Function": func},
       success: function(data) {
-        this.setState({loading: false, jobs: data})
+        this.setState({loading: false, jobs: data});
       }.bind(this),
       error : function(xhr, status, err) {
-        api_err = xhr.responseJSON.error
-        this.setState({loading: false})
-        console.log("Got api error :" + api_err)
+        this.setState({loading: false});
+        console.log("Got api error :" + xhr.responseText);
       }.bind(this)
     });
   },
 
-  displayRows: function(is_active) {
-    if (!this.state.jobs) {
-      return
-    }
-
-    jobs = this.state.jobs.sort(function asc_sort(a, b) {
-          return (b.Workload < a.Workload ? 1 : -1)    
-    })
-    title = is_active ? "Active jobs":"Inactive jobs"
-    header = (
-        <tr>
-          <td id="buttoncol"> </td>
-          <td id="croncol"> Cron time </td>
-          <td> Workload </td>
-          <td id="buttoncol"> </td>
-        </tr>
-    )
-
-    rows = []
-    for (i in jobs) {
-      job = jobs[i]
-      if (job.IsActive != is_active) {
-        continue
+  sortJobs: function(jobs) {
+    return jobs.sort(function(a, b) {
+      if (a.Workload === b.Workload) {
+        return 0;
       }
-      row=<CronRow key={job.ID} job={job} is_active={is_active} getJobDetails={this.getJobDetails}/>
-      rows.push(row)
+      return (b.Workload < a.Workload ? 1 : -1);
+    });
+  },
+
+  displayRows: function(title, jobs) {
+    if (!jobs || jobs.length < 1) {
+      return;
     }
-    if (rows.length < 1) {
-      return 
-    }
+
+    var header = (
+        <tr>
+          <td id="buttoncol"></td>
+          <td id="croncol">Cron time</td>
+          <td>Workload</td>
+          <td id="buttoncol"></td>
+        </tr>
+    );
+
+    var rows = jobs.map(function(job) {
+      return <CronRow key={job.ID} job={job} getJobDetails={this.getJobDetails}/>;
+    });
     return (
         <div>
-          <p id="active"> {title} ({rows.length}) </p>
+          <p id="active">{title} ({rows.length})</p>
           <Table striped bordered> 
-            <thead> {header} </thead>
-            <tbody> {rows} </tbody>
+            <thead>{header}</thead>
+            <tbody>{rows}</tbody>
           </Table>
         </div>
-      )
+      );
   },
 
   cronUsage: function() {
     return (
-      <Alert bsStyle="info"> For more information on cron convention please see <a href="https://github.com/ncb000gt/node-cron"> the README to the node package clever-cron uses. </a></Alert>
-    )
+      <Alert bsStyle="info">For more information on cron convention please see <a href="https://github.com/ncb000gt/node-cron"> the README to the node package clever-cron uses.</a></Alert>
+    );
   },
 
   render: function() {
-    if (this.state.loading) {
-      return (<p> Loading... </p>)
-    }
+    var active_jobs = this.state.jobs.filter(function (val) {
+        return val.IsActive;
+    });
+    var inactive_jobs = this.state.jobs.filter(function (val) {
+        return !val.IsActive;
+    });
 
     return (
       <div className="job-details">
-        <p id="job-name"> {this.state.function} </p>
+        <p id="job-name">{this.state.function}</p>
         {this.cronUsage()}
         <AddForm function={this.state.function} getJobDetails={this.getJobDetails}/>
-        {this.displayRows(true)}
-        {this.displayRows(false)}
+        {this.displayRows("Active Jobs", active_jobs)}
+        {this.displayRows("Inactive Jobs", inactive_jobs)}
       </div>
-    )
+    );
   }
 });
