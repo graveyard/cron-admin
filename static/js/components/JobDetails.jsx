@@ -176,7 +176,8 @@ var JobDetails = React.createClass({
 
     var rows = jobs.map(function(job) {
       return <CronRow key={job.ID} job={job} getJobDetails={this.getJobDetails}/>;
-    });
+    }.bind(this));
+
     return (
         <div>
           <p id="active">{title} ({rows.length})</p>
