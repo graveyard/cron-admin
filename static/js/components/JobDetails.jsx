@@ -196,10 +196,10 @@ var JobDetails = React.createClass({
   },
 
   render: function() {
-    var active_jobs = this.state.jobs.filter(function (val) {
+    var active_jobs = (this.state.jobs || []).filter(function (val) {
         return val.IsActive;
     });
-    var inactive_jobs = this.state.jobs.filter(function (val) {
+    var inactive_jobs = (this.state.jobs || []).filter(function (val) {
         return !val.IsActive;
     });
 
