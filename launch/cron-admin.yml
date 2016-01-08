@@ -16,5 +16,5 @@ expose:
   proto: http
   health_check:
     type: http
-    path: /ping
+    path: /healthcheck
 dependencies: []
