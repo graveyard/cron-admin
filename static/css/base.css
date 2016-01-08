@@ -1,0 +1,91 @@
+/*/*html,
+.search-body body {
+	margin: 0;
+	padding: 0;
+}*/
+
+/*body {*/
+
+input:required:invalid  {
+  background-color: rgb(242, 222, 222);
+}
+
+input:required:valid  {
+  background-color: rgba(87, 181, 58, 0.22);
+}
+
+.navbar {
+  margin-bottom: 15px;
+  padding-left: 22px;
+}
+
+.navbar-header {
+  font-size: 20px;
+}
+
+.panel {
+  margin-bottom: 15px;
+}
+
+.panel-body {
+  padding: 5px;
+}
+
+.search-body {
+	padding: 0;
+
+	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	background: #eaeaea url('/images/bg.png');
+	color: #4d4d4d;
+	width: 80%;
+	margin: 0 35px;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+}
+
+.search-body td {
+  cursor: pointer;
+}
+
+.job-details {
+  /* position: relative; */
+  top: -15px;
+  margin-bottom: -15px;
+  width: 65%;
+  padding-left: 35px;
+}
+
+.job-details #job-name {
+  font-size: 40px;
+  vertical-align: middle;
+}
+
+.job-details #active {
+  font-size: 30px;
+  vertical-align: middle;
+}
+
+.job-details #workload {
+  word-break: break-all;
+}
+
+.job-details #croncol {
+  width: 140px;
+}
+
+.job-details #buttoncol {
+  width: 120px;
+}
+
+.job-details #crontime {
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.job-details #button {
+  text-align: center;
+}
