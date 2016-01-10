@@ -1,11 +1,11 @@
-# cron-admin
+# Cron Admin
 Web interface and API for managing a cron table stored in a database. For details on cron times and conventions see [this reference](http://www.adminschoice.com/crontab-quick-reference).
 
 ## API Endpoints
 
 #### GET: `/active-functions`
 
-Returns a list of distinct job function names which are actively scheduled.
+Returns a list of distinct job functions which are actively scheduled.
 
 #### GET: `/jobs`
 
@@ -46,7 +46,7 @@ Body params (all required):
 
 400 errors occur when:
 * Any of these fields are missing
-* Function is the empty
+* Function is the empty string
 * CronTime is invalid
 * Created cannot be parsed as RFC3339
 
