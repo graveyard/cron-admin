@@ -65,3 +65,13 @@ Displays active/inactive jobs with their cron times and payloads. The interface 
 * Add a new job
 * Deactivate/active an already existing job
 * Delete a job
+
+## Running Cron Admin
+
+To run Cron Admin, you must be using Go 1.5. To start the http server simply run 
+
+```
+MONGO_URL=<URL> make run
+````
+
+(by default the envvar `PORT=80`, for local development you might try setting `PORT=5011`). For local development and testing it's recommended to spin up a local mongo instance, via the command `mongod`, by which you can set `MONGO_URL=localhost`. Tests by default expect a mongo instance at localhost.
