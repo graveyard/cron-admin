@@ -32,6 +32,10 @@ var CronAdmin = React.createClass({
     };
   },
 
+  navClick: function(page) {
+    this.navigate(page, {});
+  },
+
   navigate: function(page, params) {
     this.setState({page: page, params: params, urlParams: null});
     history.pushState({page: page, params: params}, null, "#" + page);
@@ -43,11 +47,18 @@ var CronAdmin = React.createClass({
       mainPage = <ActiveFunctions navigate={this.navigate} urlParams={this.state.urlParams}/>;
     } else if (this.state.page === "jobdetails") {
       mainPage = <JobDetails navigate={this.navigate} function={this.state.params} urlParams={this.state.urlParams}/>;
+    } else if (this.state.page === "submitjob") {
+      mainPage = <SubmitJob navigate={this.navigate} urlParams={this.state.urlParams}/>;
     }
 
     return (
       <div>
-        <Navbar inverse fluid brand={<a href="#activefunctions">Cron Admin</a>} />
+        <Navbar inverse fluid brand={<a href="#activefunctions">Cron Admin</a>}>
+          <Nav activeKey={this.state.page}>
+            <NavItem eventKey={"activefunctions"} onClick={this.navClick.bind(this, "activefunctions")} href='#activefunctions'>Main</NavItem>
+            <NavItem eventKey={"submitjob"} onClick={this.navClick.bind(this, "submitjob")} href='#submitjob'>Submit a Job</NavItem>
+          </Nav>
+        </Navbar>
         {mainPage}
       </div>
     );

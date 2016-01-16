@@ -1,10 +1,12 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -22,6 +24,7 @@ var (
 		"TimeZone",
 		"Created",
 	}
+	errParsingPostForm     = fmt.Errorf("Error parsing post form")
 	errEmptyFunctionInput  = fmt.Errorf("Error: Must include non-empty function")
 	errMissingUpdateFields = fmt.Errorf("Error: Updates require you to include the following:  %s", strings.Join(cronUpdateFields, ", "))
 )
@@ -146,7 +149,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 	r.HandleFunc("/jobs", jsonHandler(func(req *http.Request) (interface{}, int, error) {
 		defer req.Body.Close()
 		if parseErr := req.ParseForm(); parseErr != nil {
-			fmt.Printf("Got error parsing form: %s", parseErr)
+			return nil, 400, errParsingPostForm
 		}
 		function := req.PostForm.Get("Function")
 		if function == "" {
@@ -177,6 +180,33 @@ func setupHandlers(r *mux.Router, database db.DB) {
 		}
 		return nil, 200, nil
 	})).Methods("POST")
+
+	r.HandleFunc("/submitjob", jsonHandler(func(req *http.Request) (interface{}, int, error) {
+		defer req.Body.Close()
+		if parseErr := req.ParseForm(); parseErr != nil {
+			return 0, 400, errParsingPostForm
+		}
+		function := req.PostForm.Get("Function")
+		if function == "" {
+			return nil, 400, errEmptyFunctionInput
+		}
+		workload := req.PostForm.Get("Workload")
+
+		client := &http.Client{}
+		endpoint := fmt.Sprintf("%s/%s", os.Getenv("CLEVER_JOB_ENDPOINT"), function)
+		req, requestErr := http.NewRequest("POST", endpoint, bytes.NewReader([]byte(workload)))
+		if requestErr != nil {
+			return nil, 500, requestErr
+		}
+		req.Header.Add("Content-Type", "text/plain")
+		response, submitErr := client.Do(req)
+		if submitErr != nil {
+			return nil, 500, submitErr
+		}
+		response.Body.Close()
+		return nil, 200, nil
+	})).Methods("POST")
+
 }
 
 // Serve starts up a server. This call won't return unless there's an error.
