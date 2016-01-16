@@ -132,6 +132,12 @@ var CronRow = React.createClass({
     });
   },
 
+  formatTime: function(created) {
+    input_format = "YYYY-MM-DDTHH:mm:SSSSZ";
+    output_format = "YYYY-MM-DD";
+    return moment(created, input_format).format(output_format);
+  },
+
   render: function() {
     var job = this.props.job;
     var display = this.props.job.IsActive ? "Deactivate":"Activate";
@@ -143,6 +149,7 @@ var CronRow = React.createClass({
         <td id="button"><Button bsStyle={style} onClick={this.toggle_activated_click}>{button_display}</Button></td>
         <td>{job.CronTime}</td>
         <td id="workload">{job.Workload}</td>
+        <td>{this.formatTime(job.Created)}</td>
         <td id="button"><Button bsStyle="danger" onClick={this.delete_click}>{delete_display}</Button></td>
       </tr>
     );
@@ -199,6 +206,7 @@ var JobDetails = React.createClass({
           <td id="buttoncol"></td>
           <td id="croncol">Cron time</td>
           <td>Workload</td>
+          <td>Created</td>
           <td id="buttoncol"></td>
         </tr>
     );
