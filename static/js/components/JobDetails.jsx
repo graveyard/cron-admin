@@ -39,7 +39,7 @@ var AddForm = React.createClass({
     }
 
     var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)';
-    var workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})';
+    var workload_placeholder = 'Workload: (e.g. --task=job or {"task":"job"})';
     return (
       <div>
         {this.cronAlert()}
@@ -190,8 +190,9 @@ var JobDetails = React.createClass({
   },
 
   cronUsage: function() {
+    var msg = "Note: To reduce errors, direct modifications aren't currently supported. Please instead deactivate the old job and add a new.";
     return (
-      <Alert bsStyle="info">For more information on cron convention please see <a href="https://github.com/ncb000gt/node-cron"> the README to the node package clever-cron uses.</a></Alert>
+      <Alert bsStyle="info">{msg}</Alert>
     );
   },
 
