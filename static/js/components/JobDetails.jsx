@@ -21,7 +21,7 @@ var AddForm = React.createClass({
   formSubmit: function(e) {
     e.preventDefault();
     var crontime = this.refs.crontime.getInputDOMNode().value;
-    var workload = this.refs.workload.getInputDOMNode().value;
+    var workload = this.refs.workload.getInputDOMNode().value.trim();
 
     if (!this.state.json_workload_checked && this.raiseJSONWorkloadWarning(workload)) {
       this.setState({json_workload_checked:true});
