@@ -52,7 +52,6 @@ input:required:valid  {
 }
 
 .job-details {
-  /* position: relative; */
   top: -15px;
   margin-bottom: -15px;
   width: 65%;
@@ -88,4 +87,11 @@ input:required:valid  {
 
 .job-details #button {
   text-align: center;
+}
+
+.submit-job {
+  top: -15px;
+  margin-bottom: -15px;
+  width: 65%;
+  padding-left: 35px;
 }
