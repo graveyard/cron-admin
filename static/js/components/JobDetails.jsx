@@ -1,13 +1,33 @@
 var AddForm = React.createClass({
 
   getInitialState: function() {
-    return {clicked: false, errored: false};
+    return {clicked: false, errored: false, json_workload_checked: false};
+  },
+
+  raiseJSONWorkloadWarning: function(workload) {
+    if (workload.length === 0 || workload[0] != "{") {
+      return false;
+    }
+
+    try {
+      JSON.parse(workload);
+    } catch(err) {
+      return true;
+    }
+
+    return false;
   },
 
   formSubmit: function(e) {
     e.preventDefault();
     var crontime = this.refs.crontime.getInputDOMNode().value;
-    var workload = this.refs.workload.getInputDOMNode().value;
+    var workload = this.refs.workload.getInputDOMNode().value.trim();
+
+    if (!this.state.json_workload_checked && this.raiseJSONWorkloadWarning(workload)) {
+      this.setState({json_workload_checked:true});
+      return;
+    }
+
     $.ajax({
       url: "/jobs",
       type: "POST",
@@ -33,20 +53,29 @@ var AddForm = React.createClass({
     return <Alert bsStyle="danger">{this.state.err_msg}</Alert>;
   },
 
+  workloadAlert: function() {
+    if (this.state.json_workload_checked) {
+      var msg = "Workload input looks like JSON but doesn't parse correctly. Submit anyways?";
+      return <Alert bsStyle="warning">{msg}</Alert>;
+    }
+  },
+
   render: function() {
     if (!this.state.clicked) {
       return (<div><Button bsStyle="primary" onClick={this.addJob}>Add job</Button><p></p></div>);
     }
 
     var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)';
-    var workload_placeholder = 'Workload: (e.g. "--task=job" or {"task":"job"})';
+    var workload_placeholder = 'Workload: (e.g. --task=job or {"task":"job"})';
+    var button_msg = this.state.json_workload_checked ? "Yes, submit":"Submit job";
     return (
       <div>
         {this.cronAlert()}
+        {this.workloadAlert()}
         <form onSubmit={this.formSubmit} method="POST">
         <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
         <Input ref="workload" type="text" placeholder={workload_placeholder}/>
-        <ButtonInput bsStyle="primary" type="submit">Submit job</ButtonInput>
+        <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
       </div>
     );
@@ -103,6 +132,12 @@ var CronRow = React.createClass({
     });
   },
 
+  formatTime: function(created) {
+    input_format = "YYYY-MM-DDTHH:mm:SSSSZ";
+    output_format = "YYYY-MM-DD";
+    return moment(created, input_format).format(output_format);
+  },
+
   render: function() {
     var job = this.props.job;
     var display = this.props.job.IsActive ? "Deactivate":"Activate";
@@ -114,6 +149,7 @@ var CronRow = React.createClass({
         <td id="button"><Button bsStyle={style} onClick={this.toggle_activated_click}>{button_display}</Button></td>
         <td>{job.CronTime}</td>
         <td id="workload">{job.Workload}</td>
+        <td>{this.formatTime(job.Created)}</td>
         <td id="button"><Button bsStyle="danger" onClick={this.delete_click}>{delete_display}</Button></td>
       </tr>
     );
@@ -170,6 +206,7 @@ var JobDetails = React.createClass({
           <td id="buttoncol"></td>
           <td id="croncol">Cron time</td>
           <td>Workload</td>
+          <td>Created</td>
           <td id="buttoncol"></td>
         </tr>
     );
@@ -190,8 +227,9 @@ var JobDetails = React.createClass({
   },
 
   cronUsage: function() {
+    var msg = "Note: To reduce errors, direct modifications aren't currently supported. Please instead deactivate the old job and add a new.";
     return (
-      <Alert bsStyle="info">For more information on cron convention please see <a href="https://github.com/ncb000gt/node-cron"> the README to the node package clever-cron uses.</a></Alert>
+      <Alert bsStyle="info">{msg}</Alert>
     );
   },
 
