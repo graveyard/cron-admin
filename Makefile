@@ -1,3 +1,6 @@
+include golang.mk
+.DEFAULT_GOAL := test # override default goal set in library makefile
+
 .PHONY: build run vendor
 SHELL := /bin/bash
 PKG := github.com/Clever/cron-admin
@@ -7,17 +10,12 @@ EXECUTABLE := cron-admin
 GOLINT := $(GOPATH)/bin/golint
 GODEP := $(GOPATH)/bin/godep
 
-GOVERSION := $(shell go version | grep 1.5)
-ifeq "$(GOVERSION)" ""
-	$(error must be running Go 1.5)
-endif
-export GO15VENDOREXPERIMENT=1
+
+$(eval $(call golang-version-check,1.5))
+
 export MONGO_TEST_DB ?= 127.0.0.1:27017
 
 all: build test
-
-$(GOLINT):
-	go get github.com/golang/lint/golint
 
 clean:
 	rm -rf $(GOPATH)/src/$(PKG)/build
@@ -27,20 +25,11 @@ build: clean
 
 test: $(PKGS)
 
-$(PKGS): $(GOLINT)
-	@echo ""
-	@echo "FORMATTING $@..."
-	gofmt -w=true $(GOPATH)/src/$@/*.go
-	@echo ""
-	@echo "LINTING $@..."
-	$(GOLINT) $(GOPATH)/src/$@/*.go
-	@echo "TESTING $@..."
-	go test -v $@
+$(PKGS): golang-test-all-deps
+		$(call golang-test-all,$@)
+
+vendor: golang-godep-vendor-deps
+		$(call golang-godep-vendor,$(PKGS))
 
 run: build
 	./build/$(EXECUTABLE)
-
-vendor: $(GODEP)
-	$(GODEP) save $(PKGS)
-	find vendor/ -path '*/vendor' -type d | xargs -IX rm -r X # remove any nested vendor directories
-
