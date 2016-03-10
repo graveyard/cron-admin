@@ -19,8 +19,8 @@ build: clean
 	go build -o bin/$(EXECUTABLE) $(PKG)
 
 test: $(PKGS)
-$(PKGS): golang-test-all-deps
-	$(call golang-test-all,$@)
+$(PKGS): golang-test-all-strict-deps
+	$(call golang-test-all-strict,$@)
 
 vendor: golang-godep-vendor-deps
 	$(call golang-godep-vendor,$(PKGS))
