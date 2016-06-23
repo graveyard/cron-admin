@@ -18,5 +18,4 @@ expose:
     type: http
     path: /healthcheck
 dependencies: []
-team:
-  - eng-ip
+team: eng-ip
