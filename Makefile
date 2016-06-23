@@ -13,7 +13,7 @@ export MONGO_TEST_DB ?= 127.0.0.1:27017
 all: build test
 
 clean:
-	rm bin/*
+	-rm bin/*
 
 build: clean
 	go build -o bin/$(EXECUTABLE) $(PKG)
