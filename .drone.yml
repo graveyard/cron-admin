@@ -1,6 +1,7 @@
 image: clever/drone-go:1.6
 script:
 - ./drone.sh
+- make build
 publish:
   catapult:
     url: $$catapult_url
@@ -16,6 +17,6 @@ publish:
     tags:
       - $(git rev-parse --short HEAD)
     when:
-      branch: master
+      branch: fix-broken-build
 services:
 - clever/mongo:2.4
