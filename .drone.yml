@@ -1,6 +1,7 @@
 image: clever/drone-go:1.6
 script:
 - ./drone.sh
+- make build
 publish:
   catapult:
     url: $$catapult_url
