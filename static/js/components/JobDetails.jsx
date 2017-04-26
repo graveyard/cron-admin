@@ -65,7 +65,7 @@ var AddForm = React.createClass({
       return (<div><Button bsStyle="primary" onClick={this.addJob}>Add job</Button><p></p></div>);
     }
 
-    var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5)';
+    var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5 -> run at 0 seconds, 13 mins, every hour divisable by 4, every day and every month on Monday though Friday';
     var workload_placeholder = 'Workload: (e.g. --task=job or {"task":"job"})';
     var button_msg = this.state.json_workload_checked ? "Yes, submit":"Submit job";
     return (
