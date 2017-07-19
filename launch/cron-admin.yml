@@ -6,13 +6,9 @@ env:
 resources:
   cpu: 0.1
   memory: 100
-elbs:
-  production:
-  - cron-admin
 expose:
 - name: http
   port: 80
-  bind: 80
   proto: http
   health_check:
     type: http

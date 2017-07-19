@@ -34,6 +34,7 @@ func DBTest(assert *assert.Assertions, dbWrapper DBWrapper) {
 	dbWrapper(assert, "testUpdateJob", testUpdateJob)
 	dbWrapper(assert, "testDeleteJob", testDeleteJob)
 	dbWrapper(assert, "testGetDistinctActiveFunctions", testGetDistinctActiveFunctions)
+	dbWrapper(assert, "testBackends", testBackends)
 }
 
 // testAddJob also implicitly tests the GetJobs implementation.
@@ -44,6 +45,7 @@ func testAddJob(assert *assert.Assertions, db DB) {
 		Workload: "--foo bar",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 
 	// Next three lines included to implicitly test the GetJobs method
@@ -67,6 +69,7 @@ func testDeleteJob(assert *assert.Assertions, db DB) {
 		Workload: "--foo bar",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 
 	assert.NoError(db.AddJob(cronJob))
@@ -90,6 +93,7 @@ func testUpdateJob(assert *assert.Assertions, db DB) {
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
 		Created:  time.Now(),
+		Backend:  "gearman",
 	}
 
 	assert.NoError(db.AddJob(cronJobBefore))
@@ -106,6 +110,7 @@ func testUpdateJob(assert *assert.Assertions, db DB) {
 		CronTime: "6 5 4 3 2 1",
 		TimeZone: defaultTimeZone,
 		Created:  time.Now(),
+		Backend:  "gearman",
 	}
 
 	assert.NoError(db.UpdateJob(cronJobAfter))
@@ -129,6 +134,7 @@ func testGetDistinctActiveFunctions(assert *assert.Assertions, db DB) {
 		Workload: "--foo bar",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 	cronJob2 := CronJob{
 		IsActive: true,
@@ -136,6 +142,7 @@ func testGetDistinctActiveFunctions(assert *assert.Assertions, db DB) {
 		Workload: "--new car",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 	cronJob3 := CronJob{
 		IsActive: false,
@@ -143,6 +150,7 @@ func testGetDistinctActiveFunctions(assert *assert.Assertions, db DB) {
 		Workload: "--foo bar",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 	cronJob4 := CronJob{
 		IsActive: true,
@@ -150,6 +158,7 @@ func testGetDistinctActiveFunctions(assert *assert.Assertions, db DB) {
 		Workload: "--foo bar",
 		CronTime: "1 2 3 4 5 6",
 		TimeZone: defaultTimeZone,
+		Backend:  "gearman",
 	}
 
 	assert.NoError(db.AddJob(cronJob1))
@@ -158,6 +167,27 @@ func testGetDistinctActiveFunctions(assert *assert.Assertions, db DB) {
 	assert.NoError(db.AddJob(cronJob4))
 
 	expectedFunctions := []string{"test1", "test2"}
+	activeFunctions, getErr := db.GetDistinctActiveFunctions()
+	assert.NoError(getErr)
+	sort.Strings(activeFunctions)
+	assert.Equal(expectedFunctions, activeFunctions)
+}
+
+func testBackends(assert *assert.Assertions, db DB) {
+	for _, b := range []string{"", "gearman", "workflow-manager"} {
+		cronJob := CronJob{
+			IsActive: true,
+			Function: "test_" + b,
+			Workload: "--foo bar",
+			CronTime: "1 2 3 4 5 6",
+			TimeZone: defaultTimeZone,
+			Backend:  b,
+		}
+
+		assert.NoError(db.AddJob(cronJob))
+	}
+
+	expectedFunctions := []string{"test_", "test_gearman", "test_workflow-manager"}
 	activeFunctions, getErr := db.GetDistinctActiveFunctions()
 	assert.NoError(getErr)
 	sort.Strings(activeFunctions)
@@ -173,4 +203,5 @@ func compareCronJobs(assert *assert.Assertions, cBefore, cAfter CronJob) {
 	assert.Equal(cBefore.IsActive, cAfter.IsActive)
 	assert.Equal(cBefore.Workload, cAfter.Workload)
 	assert.Equal(cBefore.TimeZone, cAfter.TimeZone)
+	assert.Equal(cBefore.Backend, cAfter.Backend)
 }

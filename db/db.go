@@ -12,6 +12,7 @@ type CronJob struct {
 	Workload string
 	CronTime string
 	TimeZone string
+	Backend  string
 	Created  time.Time
 }
 

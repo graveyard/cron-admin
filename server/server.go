@@ -123,6 +123,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 			Workload: req.PostForm.Get("Workload"),
 			CronTime: req.PostForm.Get("CronTime"),
 			TimeZone: req.PostForm.Get("TimeZone"),
+			Backend:  req.PostForm.Get("Backend"),
 			Created:  created,
 		}
 
@@ -161,6 +162,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 		if timeZone == "" {
 			timeZone = "America/Los_Angeles"
 		}
+		backend := req.PostForm.Get("Backend")
 
 		cronJob := db.CronJob{
 			Function: function,
@@ -168,6 +170,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 			Workload: workload,
 			IsActive: true,
 			TimeZone: timeZone,
+			Backend:  backend,
 			Created:  time.Now(),
 		}
 
