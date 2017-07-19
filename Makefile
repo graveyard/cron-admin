@@ -18,6 +18,9 @@ clean:
 build: clean
 	go build -o bin/$(EXECUTABLE) $(PKG)
 
+install_deps: $(GOPATH)/bin/glide
+	@$(GOPATH)/bin/glide install
+
 test: $(PKGS)
 $(PKGS): golang-test-all-strict-deps
 	$(call golang-test-all-strict,$@)
