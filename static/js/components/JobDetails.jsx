@@ -39,7 +39,7 @@ var AddForm = React.createClass({
       error: function(xhr, status, err) {
         this.setState({errored: true, err_msg: xhr.responseText});
       }.bind(this)
-    }); 
+    });
   },
 
   addJob: function() {
@@ -102,7 +102,8 @@ var CronRow = React.createClass({
              CronTime: job.CronTime,
              Workload: job.Workload,
              Created: job.Created,
-             TimeZone: job.TimeZone},
+             TimeZone: job.TimeZone,
+             Backend: job.Backend},
       dataType: "json",
       success: function(data) {
         this.props.getJobDetails(this.props.job.Function);
@@ -110,7 +111,7 @@ var CronRow = React.createClass({
       error: function(xhr, status, err) {
         console.log("Error " + xhr.responseText);
       }.bind(this)
-    }); 
+    });
   },
 
   delete_click: function() {
@@ -150,6 +151,7 @@ var CronRow = React.createClass({
         <td>{job.CronTime}</td>
         <td id="workload">{job.Workload}</td>
         <td>{this.formatTime(job.Created)}</td>
+        <td>{job.Backend}</td>
         <td id="button"><Button bsStyle="danger" onClick={this.delete_click}>{delete_display}</Button></td>
       </tr>
     );
@@ -207,6 +209,7 @@ var JobDetails = React.createClass({
           <td id="croncol">Cron time</td>
           <td>Workload</td>
           <td>Created</td>
+          <td>Backend</td>
           <td id="buttoncol"></td>
         </tr>
     );
@@ -218,7 +221,7 @@ var JobDetails = React.createClass({
     return (
         <div>
           <p id="active">{title} ({rows.length})</p>
-          <Table striped bordered> 
+          <Table striped bordered>
             <thead>{header}</thead>
             <tbody>{rows}</tbody>
           </Table>
