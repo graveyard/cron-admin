@@ -19,6 +19,7 @@ type mongoCronJob struct {
 	CronTime string        `bson:"time"`
 	TimeZone string        `bson:"tz"`
 	Created  time.Time     `bson:"created"`
+	Backend  string        `bson:"backend"`
 }
 
 func (c CronJob) toMongoCronJob() mongoCronJob {
@@ -35,6 +36,7 @@ func (c CronJob) toMongoCronJob() mongoCronJob {
 		CronTime: c.CronTime,
 		TimeZone: c.TimeZone,
 		Created:  c.Created,
+		Backend:  c.Backend,
 	}
 }
 
@@ -56,6 +58,7 @@ func (mc *mongoCronJob) toCronJob() CronJob {
 		CronTime: mc.CronTime,
 		TimeZone: mc.TimeZone,
 		Created:  mc.Created,
+		Backend:  mc.Backend,
 	}
 }
 
@@ -152,6 +155,7 @@ func (db *MongoDB) AddJob(job CronJob) error {
 		CronTime: job.CronTime,
 		TimeZone: job.TimeZone,
 		Created:  time.Now(),
+		Backend:  job.Backend,
 	}
 
 	if insertErr := collection.Insert(&insertJob); insertErr != nil {
