@@ -21,6 +21,9 @@ build: clean
 install_deps: $(GOPATH)/bin/glide
 	@$(GOPATH)/bin/glide install
 
+start-test-db:
+	docker stop cron-admin-mongo; docker rm cron-admin-mongo; docker run --name cron-admin-mongo -p 27017:27017 -d mongo
+
 test: $(PKGS)
 $(PKGS): golang-test-all-strict-deps
 	$(call golang-test-all-strict,$@)
