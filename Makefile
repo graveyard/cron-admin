@@ -18,6 +18,9 @@ clean:
 build: clean
 	go build -o bin/$(EXECUTABLE) $(PKG)
 
+$(GOPATH)/bin/glide:
+	@go get github.com/Masterminds/glide
+
 install_deps: $(GOPATH)/bin/glide
 	@$(GOPATH)/bin/glide install
 
