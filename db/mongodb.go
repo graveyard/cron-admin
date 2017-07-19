@@ -2,9 +2,10 @@ package db
 
 import (
 	"encoding/json"
+	"time"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
 
 var (
@@ -46,6 +47,7 @@ func (mc *mongoCronJob) toCronJob() CronJob {
 	case string:
 		workload = t
 	case bson.M:
+	case []interface{}:
 		workloadByte, _ := json.Marshal(t)
 		workload = string(workloadByte)
 	}
@@ -175,8 +177,14 @@ func (db *MongoDB) DeleteJob(jobID string) error {
 
 func parseWorkload(workloadString string) interface{} {
 	var jsonWorkload map[string]interface{}
-	if jsonErr := json.Unmarshal([]byte(workloadString), &jsonWorkload); jsonErr == nil {
+	if err := json.Unmarshal([]byte(workloadString), &jsonWorkload); err == nil {
 		return bson.M(jsonWorkload)
 	}
+
+	var array []interface{}
+	if err := json.Unmarshal([]byte(workloadString), &array); err == nil {
+		return array
+	}
+
 	return workloadString
 }
