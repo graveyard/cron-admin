@@ -80,7 +80,7 @@ var AddForm = React.createClass({
         <label>Workload</label>
         <Input ref="workload" type="text" placeholder={workload_placeholder} />
         <label>Backend</label>
-        <Input ref="backend" type="text" placeholder={backend_placeholder} />
+        <Input ref="backend" type="text" placeholder={backend_placeholder} value="gearman" />
         <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
       </div>
