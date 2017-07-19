@@ -22,6 +22,7 @@ var AddForm = React.createClass({
     e.preventDefault();
     var crontime = this.refs.crontime.getInputDOMNode().value;
     var workload = this.refs.workload.getInputDOMNode().value.trim();
+    var backend = this.refs.backend.getInputDOMNode().value.trim();
 
     if (!this.state.json_workload_checked && this.raiseJSONWorkloadWarning(workload)) {
       this.setState({json_workload_checked:true});
@@ -31,7 +32,7 @@ var AddForm = React.createClass({
     $.ajax({
       url: "/jobs",
       type: "POST",
-      data: {Function: this.props.function, CronTime: crontime, Workload: workload},
+      data: {Function: this.props.function, CronTime: crontime, Workload: workload, Backend: backend},
       dataType: "json",
       success: function(data) {
         this.props.getJobDetails(this.props.function);
@@ -65,16 +66,21 @@ var AddForm = React.createClass({
       return (<div><Button bsStyle="primary" onClick={this.addJob}>Add job</Button><p></p></div>);
     }
 
-    var crontime_placeholder = 'Cron time: (e.g.  0 13 */4 * * 1-5 -> run at 0 seconds, 13 mins, every hour divisable by 4, every day and every month on Monday though Friday)';
-    var workload_placeholder = 'Workload: (e.g. --task=job or {"task":"job"})';
+    var crontime_placeholder = 'e.g.  0 13 */4 * * 1-5 -> run at 0 seconds, 13 mins, every hour divisable by 4, every day and every month on Monday though Friday';
+    var workload_placeholder = 'e.g. --task=job or {"task":"job"}';
+    var backend_placeholder = 'e.g. gearman or workflow-mananger';
     var button_msg = this.state.json_workload_checked ? "Yes, submit":"Submit job";
     return (
       <div>
         {this.cronAlert()}
         {this.workloadAlert()}
         <form onSubmit={this.formSubmit} method="POST">
+        <label>Cron Time</label>
         <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
-        <Input ref="workload" type="text" placeholder={workload_placeholder}/>
+        <label>Workload</label>
+        <Input ref="workload" type="text" placeholder={workload_placeholder} />
+        <label>Backend</label>
+        <Input ref="backend" type="text" placeholder={backend_placeholder} />
         <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
       </div>
