@@ -33,6 +33,7 @@ func TestParseWorkload(t *testing.T) {
 	}{
 		{Input: "--task", Output: interface{}("--task")},
 		{Input: "{\"foo\":\"bar\"}", Output: bson.M(map[string]interface{}{"foo": "bar"})},
+		{Input: `["array", "of", "items"]`, Output: []interface{}{"array", "of", "items"}},
 	} {
 		assert.Equal(t, test.Output, parseWorkload(test.Input))
 	}
