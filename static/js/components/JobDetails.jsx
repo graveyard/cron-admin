@@ -22,7 +22,7 @@ var AddForm = React.createClass({
     e.preventDefault();
     var crontime = this.refs.crontime.getInputDOMNode().value;
     var workload = this.refs.workload.getInputDOMNode().value.trim();
-    var backend = this.refs.backend.getInputDOMNode().value.trim();
+    var backend = this.refs.backend.getValue();
 
     if (!this.state.json_workload_checked && this.raiseJSONWorkloadWarning(workload)) {
       this.setState({json_workload_checked:true});
@@ -80,7 +80,10 @@ var AddForm = React.createClass({
         <label>Workload</label>
         <Input ref="workload" type="text" placeholder={workload_placeholder} />
         <label>Backend</label>
-        <Input ref="backend" type="text" placeholder={backend_placeholder} value="gearman" />
+        <Input type="select" ref="backend">
+          <option value="gearman">gearman</option>
+          <option value="workflow-manager">workflow-manager</option>
+        </Input>
         <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
       </div>
