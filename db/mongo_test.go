@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
@@ -37,6 +38,33 @@ func TestParseWorkload(t *testing.T) {
 	} {
 		assert.Equal(t, test.Output, parseWorkload(test.Input))
 	}
+}
+
+func TestToCronJob(t *testing.T) {
+	idHex := "12345678901234567890abcd"
+	id := bson.ObjectIdHex(idHex)
+	v := mongoCronJob{
+		ID:       id,
+		IsActive: true,
+		Function: "echo",
+		Workload: bson.M{"district_id": "abc123"},
+		CronTime: "* * 3 * * *",
+		TimeZone: "America/Los_Angeles",
+		Created:  time.Date(2017, 5, 20, 0, 0, 0, 0, time.UTC),
+		Backend:  "gearman",
+	}
+	actual := v.toCronJob()
+	expected := CronJob{
+		ID:       idHex,
+		IsActive: true,
+		Function: "echo",
+		Workload: `{"district_id":"abc123"}`,
+		CronTime: "* * 3 * * *",
+		TimeZone: "America/Los_Angeles",
+		Created:  time.Date(2017, 5, 20, 0, 0, 0, 0, time.UTC),
+		Backend:  "gearman",
+	}
+	assert.Equal(t, expected, actual)
 }
 
 // Auxilliary wrapper functions

@@ -47,6 +47,8 @@ func (mc *mongoCronJob) toCronJob() CronJob {
 	case string:
 		workload = t
 	case bson.M:
+		workloadByte, _ := json.Marshal(t)
+		workload = string(workloadByte)
 	case []interface{}:
 		workloadByte, _ := json.Marshal(t)
 		workload = string(workloadByte)
@@ -138,10 +140,7 @@ func (db *MongoDB) UpdateJob(cronJob CronJob) error {
 	mongoCron.ID = bson.ObjectId("")
 
 	change := bson.M{"$set": mongoCron}
-	if err := collection.Update(query, change); err != nil {
-		return err
-	}
-	return nil
+	return collection.Update(query, change)
 }
 
 // AddJob parses CronJob input and inserts into DB
@@ -160,11 +159,7 @@ func (db *MongoDB) AddJob(job CronJob) error {
 		Backend:  job.Backend,
 	}
 
-	if insertErr := collection.Insert(&insertJob); insertErr != nil {
-		return insertErr
-	}
-
-	return nil
+	return collection.Insert(&insertJob)
 }
 
 // DeleteJob removes jobID from DB
