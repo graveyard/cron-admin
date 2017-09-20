@@ -47,6 +47,8 @@ func (mc *mongoCronJob) toCronJob() CronJob {
 	case string:
 		workload = t
 	case bson.M:
+		workloadByte, _ := json.Marshal(t)
+		workload = string(workloadByte)
 	case []interface{}:
 		workloadByte, _ := json.Marshal(t)
 		workload = string(workloadByte)
