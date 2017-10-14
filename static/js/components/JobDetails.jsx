@@ -1,7 +1,15 @@
 var AddForm = React.createClass({
 
   getInitialState: function() {
-    return {clicked: false, errored: false, json_workload_checked: false};
+    return {
+      clicked: false,
+      errored: false,
+      json_workload_checked: false,
+      cron_check: {
+        status: null,
+        message: ""
+      }
+    };
   },
 
   raiseJSONWorkloadWarning: function(workload) {
@@ -47,6 +55,19 @@ var AddForm = React.createClass({
     this.setState({clicked: true});
   },
 
+  validateCron: function(evt) {
+    var crontime = this.refs.crontime.getInputDOMNode().value;
+    var cron_check = { };
+    try {
+      cron_check.message = cronstrue.toString(crontime);
+      cron_check.status = "success";
+    } catch(e) {
+      cron_check.status = "error";
+      cron_check.message = e;
+    }
+    return this.setState({cron_check: cron_check});
+  },
+
   cronAlert: function() {
     if (!this.state.errored) {
       return;
@@ -76,7 +97,8 @@ var AddForm = React.createClass({
         {this.workloadAlert()}
         <form onSubmit={this.formSubmit} method="POST">
         <label>Cron Time</label>
-        <Input ref="crontime" type="text" placeholder={crontime_placeholder} required />
+        <Input hasFeedback help={this.state.cron_check.message} bsStyle={this.state.cron_check.status}
+          onChange={this.validateCron} ref="crontime" type="text" placeholder={crontime_placeholder} required />
         <label>Workload</label>
         <Input ref="workload" type="text" placeholder={workload_placeholder} />
         <label>Backend</label>
@@ -154,10 +176,15 @@ var CronRow = React.createClass({
     var button_display = this.state.activated_clicked ? "Are you sure?":display;
     var style = this.props.job.IsActive ? "danger":"warning";
     var delete_display = this.state.delete_clicked ? "Are you sure?":"Delete Job";
+    var cronString = cronstrue.toString(job.CronTime);
     return(
       <tr>
         <td id="button"><Button bsStyle={style} onClick={this.toggle_activated_click}>{button_display}</Button></td>
-        <td>{job.CronTime}</td>
+        <td>
+          {job.CronTime}
+          <hr></hr>
+          {cronString}
+        </td>
         <td id="workload">{job.Workload}</td>
         <td>{this.formatTime(job.Created)}</td>
         <td>{job.Backend}</td>
