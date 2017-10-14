@@ -35,4 +35,4 @@ vendor: golang-godep-vendor-deps
 	$(call golang-godep-vendor,$(PKGS))
 
 run: build
-	bin/$(EXECUTABLE)
+	PORT=8080 bin/$(EXECUTABLE)

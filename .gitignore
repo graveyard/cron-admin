@@ -2,3 +2,4 @@
 *.swo
 
 vendor/
+bin/
