@@ -103,8 +103,8 @@ var AddForm = React.createClass({
         <Input ref="workload" type="text" placeholder={workload_placeholder} />
         <label>Backend</label>
         <Input type="select" ref="backend">
-          <option value="gearman">gearman</option>
           <option value="workflow-manager">workflow-manager</option>
+          <option value="gearman">gearman</option>
         </Input>
         <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
