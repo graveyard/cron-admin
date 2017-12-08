@@ -88,7 +88,7 @@ var AddForm = React.createClass({
     }
 
     var crontime_placeholder = 'e.g.  0 13 */4 * * 1-5 -> run at 0 seconds, 13 mins, every hour divisable by 4, every day and every month on Monday though Friday';
-    var workload_placeholder = 'e.g. --task=job or {"task":"job"}';
+    var workload_placeholder = 'e.g. {"district_id":"12345"}';
     var backend_placeholder = 'e.g. gearman or workflow-mananger';
     var button_msg = this.state.json_workload_checked ? "Yes, submit":"Submit job";
     return (
@@ -103,8 +103,8 @@ var AddForm = React.createClass({
         <Input ref="workload" type="text" placeholder={workload_placeholder} />
         <label>Backend</label>
         <Input type="select" ref="backend">
-          <option value="gearman">gearman</option>
           <option value="workflow-manager">workflow-manager</option>
+          <option value="gearman">gearman</option>
         </Input>
         <ButtonInput bsStyle="primary" type="submit">{button_msg}</ButtonInput>
         </form>
