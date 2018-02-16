@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/Clever/cron-admin"
-  packages = ["db","server"]
-  revision = "b3475ac92d543ae5b5c9cb17029f70a22dd27041"
-
-[[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
   revision = "1c83b3eabd45b6d76072b66b746c20815fb2872d"
@@ -41,6 +35,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9add1fc371585a75e1dfe5497d62d83122030e1d5a9105979f45c5e7c8f0a76d"
+  inputs-digest = "479f3253ef5e2665a4820ab1f7a68dcb900ee66bd6eb9d7cbf9802db0c860f30"
   solver-name = "gps-cdcl"
   solver-version = 1
