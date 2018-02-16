@@ -22,10 +22,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/Clever/cron-admin"
-
-[[constraint]]
   name = "github.com/gorilla/mux"
 
 [[constraint]]
