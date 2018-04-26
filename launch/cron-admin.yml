@@ -14,4 +14,6 @@ expose:
     type: http
     path: /healthcheck
 dependencies: []
+databases:
+- mongo:legacy
 team: eng-ip
