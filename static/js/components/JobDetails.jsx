@@ -177,6 +177,15 @@ var CronRow = React.createClass({
     var style = this.props.job.IsActive ? "danger":"warning";
     var delete_display = this.state.delete_clicked ? "Are you sure?":"Delete Job";
     var cronString = cronstrue.toString(job.CronTime);
+    let workload;
+    try {
+      var parsedObj = JSON.parse(job.Workload);
+      var parsedStr = JSON.stringify(parsedObj, null, 2);
+      workload = (<div><pre>{parsedStr}</pre></div>);
+    } catch (e) {
+      // fallback
+      workload = job.Workload;
+    }
     return(
       <tr>
         <td id="button"><Button bsStyle={style} onClick={this.toggle_activated_click}>{button_display}</Button></td>
@@ -185,7 +194,7 @@ var CronRow = React.createClass({
           <hr></hr>
           {cronString}
         </td>
-        <td id="workload">{job.Workload}</td>
+        <td id="workload">{workload}</td>
         <td>{this.formatTime(job.Created)}</td>
         <td>{job.Backend}</td>
         <td id="button"><Button bsStyle="danger" onClick={this.delete_click}>{delete_display}</Button></td>
