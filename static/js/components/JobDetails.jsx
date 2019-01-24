@@ -100,7 +100,7 @@ var AddForm = React.createClass({
         <Input hasFeedback help={this.state.cron_check.message} bsStyle={this.state.cron_check.status}
           onChange={this.validateCron} ref="crontime" type="text" placeholder={crontime_placeholder} required />
         <label>Workload</label>
-        <Input ref="workload" type="text" placeholder={workload_placeholder} />
+        <Input ref="workload" type="textarea" placeholder={workload_placeholder} />
         <label>Backend</label>
         <Input type="select" ref="backend">
           <option value="workflow-manager">workflow-manager</option>
