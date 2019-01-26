@@ -28,13 +28,52 @@
   revision = "f5520455607c0233cb6d7b056f71b22c1d265ef1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonpointer"
+  packages = ["."]
+  revision = "4e3ac2762d5f479393488629ee9370b50873b3a6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonreference"
+  packages = ["."]
+  revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+
+[[projects]]
+  name = "github.com/xeipuuv/gojsonschema"
+  packages = ["."]
+  revision = "f971f3cd73b2899de6923801c147f075263e0c50"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "gopkg.in/Clever/kayvee-go.v6"
+  packages = [
+    ".",
+    "logger",
+    "router"
+  ]
+  revision = "c8c3a96b8862f1b962ba9febf5afd2a1c3789fe0"
+  version = "v6.15.0"
+
+[[projects]]
   name = "gopkg.in/mgo.v2"
-  packages = [".","bson","internal/sasl","internal/scram"]
+  packages = [
+    ".",
+    "bson",
+    "internal/sasl",
+    "internal/scram"
+  ]
   revision = "e30de8ac9ae3b30df7065f766c71f88bba7d4e49"
+
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "479f3253ef5e2665a4820ab1f7a68dcb900ee66bd6eb9d7cbf9802db0c860f30"
+  inputs-digest = "0fd762c723bd3d9c39563ab12d9d892f5f5b67571f3b2fdd39a6474ab449fc40"
   solver-name = "gps-cdcl"
   solver-version = 1
