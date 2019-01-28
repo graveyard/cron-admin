@@ -141,6 +141,7 @@ func (db *MongoDB) UpdateJob(cronJob CronJob) error {
 	if err := collection.Find(bson.M{"_id": mongoCron.ID}).One(&oldMongoJob); err != nil {
 		kv.WarnD("Error finding job during update", logger.M{"err": err.Error()})
 	}
+	kv.InfoD("JobUpdated", logger.M{"oldJob": oldMongoJob, "newJob": mongoCron})
 
 	query := bson.M{"_id": mongoCron.ID}
 	// "_id" can't be non-null when updating a mongo document
@@ -148,7 +149,6 @@ func (db *MongoDB) UpdateJob(cronJob CronJob) error {
 
 	change := bson.M{"$set": mongoCron}
 
-	kv.InfoD("JobUpdated", logger.M{"oldJob": oldMongoJob, "newJob": mongoCron})
 	return collection.Update(query, change)
 }
 
@@ -179,7 +179,7 @@ func (db *MongoDB) DeleteJob(jobID string) error {
 	defer session.Close()
 	collection := db.getCronCollection(session)
 	if err := collection.Find(bson.M{"_id": bson.ObjectIdHex(jobID)}).One(&oldMongoJob); err != nil {
-		kv.WarnD("Error finding job during update", logger.M{"err": err.Error()})
+		kv.WarnD("Error finding job to delete", logger.M{"err": err.Error()})
 	}
 	kv.InfoD("JobDeleted", logger.M{"oldJob": oldMongoJob})
 	return collection.RemoveId(bson.ObjectIdHex(jobID))
