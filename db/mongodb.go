@@ -11,7 +11,7 @@ import (
 
 var (
 	cronCollection = "cronjobs"
-	kv             = logger.New("cronAdmin")
+	kv             = logger.New("cron-admin")
 )
 
 type mongoCronJob struct {
