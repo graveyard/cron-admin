@@ -1,9 +1,7 @@
 run:
   type: docker
 env:
-- LEGACY_MONGO_URL
-- LEGACY_MONGO_USERNAME
-- LEGACY_MONGO_PASSWORD
+- MONGO_URL
 - PORT
 resources:
   cpu: 0.1
@@ -16,4 +14,6 @@ expose:
     type: http
     path: /healthcheck
 dependencies: []
+databases:
+- mongo:legacy
 team: eng-ip

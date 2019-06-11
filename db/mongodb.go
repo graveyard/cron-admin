@@ -71,6 +71,7 @@ func (mc *mongoCronJob) toCronJob() CronJob {
 // MongoDB is the visible DB interface used in server
 type MongoDB struct {
 	session *mgo.Session
+	dbName  string
 }
 
 func (db *MongoDB) sessionClone() *mgo.Session {
@@ -81,12 +82,16 @@ func (db *MongoDB) getCronCollection(session *mgo.Session) *mgo.Collection {
 	if session == nil {
 		session = db.session
 	}
-	return session.DB("").C(cronCollection)
+	return session.DB(db.dbName).C(cronCollection)
 }
 
 // NewMongoDB attempts to connect with DB and errs if problems are found
-func NewMongoDB(session *mgo.Session) (*MongoDB, error) {
-	return &MongoDB{session: session}, nil
+func NewMongoDB(mongoURL string, dbName string) (*MongoDB, error) {
+	session, dialErr := mgo.Dial(mongoURL)
+	if dialErr != nil {
+		return nil, dialErr
+	}
+	return &MongoDB{session: session, dbName: dbName}, nil
 }
 
 // GetDistinctActiveFunctions returns a list of functions with active jobs
