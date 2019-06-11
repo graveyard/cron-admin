@@ -1,36 +1,28 @@
 package main
 
 import (
-	"crypto/tls"
-	"net"
-	"os"
-	"time"
-
 	"github.com/Clever/cron-admin/server"
 	"github.com/segmentio/go-env"
-	"gopkg.in/mgo.v2"
+	"os"
 )
 
-func main() {
-	dialInfo, err := mgo.ParseURL(env.MustGet("LEGACY_MONGO_URL"))
-	if err != nil {
-		panic(err)
+// init panics if required environmental variables are not set before running
+func init() {
+	requiredEnv := []string{"MONGO_URL"}
+	for _, envVar := range requiredEnv {
+		env.MustGet(envVar)
 	}
-	dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
-		return tls.Dial("tcp", addr.String(), &tls.Config{})
-	}
-	dialInfo.Username = env.MustGet("LEGACY_MONGO_USERNAME")
-	dialInfo.Password = env.MustGet("LEGACY_MONGO_PASSWORD")
-	dialInfo.Timeout = time.Second * 10
+}
 
-	legacyDB, err := mgo.DialWithInfo(dialInfo)
+func main() {
+	mongoURL := env.MustGet("MONGO_URL")
 
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
 		serverPort = "80"
 	}
 
-	if serverErr := server.Serve(serverPort, legacyDB); serverErr != nil {
+	if serverErr := server.Serve(serverPort, mongoURL); serverErr != nil {
 		panic(serverErr)
 	}
 }

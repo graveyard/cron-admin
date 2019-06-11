@@ -3,13 +3,11 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/gorilla/mux"
-	"gopkg.in/mgo.v2"
 
 	"github.com/Clever/cron-admin/db"
 	"github.com/robfig/cron"
@@ -185,10 +183,10 @@ func setupHandlers(r *mux.Router, database db.DB) {
 }
 
 // Serve starts up a server. This call won't return unless there's an error.
-func Serve(serverPort string, mongoSession *mgo.Session) error {
+func Serve(serverPort string, mongoURL string) error {
 	r := mux.NewRouter()
 
-	database, err := db.NewMongoDB(mongoSession)
+	database, err := db.NewMongoDB(mongoURL, "clever")
 	if err != nil {
 		fmt.Println(err)
 	}
