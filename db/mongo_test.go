@@ -13,11 +13,12 @@ import (
 )
 
 func mongoTestWrapper(assert *assert.Assertions, dbName string, test MethodTest) {
-	testURL := mongoTestURL(dbName)
-	database, dialErr := NewMongoDB(testURL, dbName)
-	assert.NoError(dialErr)
+	session, err := mgo.Dial(mongoTestURL(dbName))
+	assert.NoError(err)
+	database, err := NewMongoDB(session)
+	assert.NoError(err)
 	defer database.session.Close()
-	defer dropDatabase(testURL)
+	defer dropDatabase(session)
 	test(assert, database)
 }
 
@@ -82,10 +83,6 @@ func mongoTestURL(dbName string) string {
 	return testURL.String()
 }
 
-func dropDatabase(mongoURL string) error {
-	session, err := mgo.Dial(mongoURL)
-	if err != nil {
-		return err
-	}
+func dropDatabase(session *mgo.Session) error {
 	return session.DB("").DropDatabase()
 }
