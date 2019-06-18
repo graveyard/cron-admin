@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"log"
 	"net"
 	"os"
 	"time"
@@ -24,6 +25,9 @@ func main() {
 	dialInfo.Timeout = time.Second * 10
 
 	legacyDB, err := mgo.DialWithInfo(dialInfo)
+	if err != nil {
+		log.Fatalf("failed to connect to Legacy DB: %s", err)
+	}
 
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
