@@ -15,8 +15,7 @@ import (
 func mongoTestWrapper(assert *assert.Assertions, dbName string, test MethodTest) {
 	session, err := mgo.Dial(mongoTestURL(dbName))
 	assert.NoError(err)
-	database, err := NewMongoDB(session)
-	assert.NoError(err)
+	database := NewMongoDB(session)
 	defer database.session.Close()
 	defer dropDatabase(session)
 	test(assert, database)

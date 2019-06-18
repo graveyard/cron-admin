@@ -188,10 +188,7 @@ func setupHandlers(r *mux.Router, database db.DB) {
 func Serve(serverPort string, mongoSession *mgo.Session) error {
 	r := mux.NewRouter()
 
-	database, err := db.NewMongoDB(mongoSession)
-	if err != nil {
-		fmt.Println(err)
-	}
+	database := db.NewMongoDB(mongoSession)
 	setupHandlers(r, database)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
