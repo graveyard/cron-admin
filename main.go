@@ -2,29 +2,48 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net"
 	"os"
-	"time"
 
 	"github.com/Clever/cron-admin/server"
-	"github.com/segmentio/go-env"
 	"gopkg.in/mgo.v2"
 )
 
-func main() {
-	dialInfo, err := mgo.ParseURL(env.MustGet("LEGACY_MONGO_URL"))
+func getEnvOrFail(envVar string) string {
+	value := os.Getenv(envVar)
+	if value == "" {
+		log.Fatalf("environment variable '%s' must be set", envVar)
+	}
+	return value
+}
+
+func dialAtlas(envVarPrefix string) (*mgo.Session, error) {
+	mongoURL := getEnvOrFail(fmt.Sprintf("%s_MONGO_URL", envVarPrefix))
+	username := getEnvOrFail(fmt.Sprintf("%s_MONGO_USERNAME", envVarPrefix))
+	password := getEnvOrFail(fmt.Sprintf("%s_MONGO_PASSWORD", envVarPrefix))
+
+	dialInfo, err := mgo.ParseURL(mongoURL)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("Error parsing mongo url - error: '%s', url='%s'", err, mongoURL)
 	}
 	dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
 		return tls.Dial("tcp", addr.String(), &tls.Config{})
 	}
-	dialInfo.Username = env.MustGet("LEGACY_MONGO_USERNAME")
-	dialInfo.Password = env.MustGet("LEGACY_MONGO_PASSWORD")
-	dialInfo.Timeout = time.Second * 10
+	dialInfo.Username = username
+	dialInfo.Password = password
 
-	legacyDB, err := mgo.DialWithInfo(dialInfo)
+	session, err := mgo.DialWithInfo(dialInfo)
+	if err != nil {
+		return nil, fmt.Errorf("Error connecting to mongo - error: '%s', url='%s'", err, mongoURL)
+	}
+
+	return session, nil
+}
+
+func main() {
+	legacyDB, err := dialAtlas("LEGACY")
 	if err != nil {
 		log.Fatalf("failed to connect to Legacy DB: %s", err)
 	}
