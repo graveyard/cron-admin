@@ -85,8 +85,8 @@ func (db *MongoDB) getCronCollection(session *mgo.Session) *mgo.Collection {
 }
 
 // NewMongoDB attempts to connect with DB and errs if problems are found
-func NewMongoDB(session *mgo.Session) (*MongoDB, error) {
-	return &MongoDB{session: session}, nil
+func NewMongoDB(session *mgo.Session) *MongoDB {
+	return &MongoDB{session: session}
 }
 
 // GetDistinctActiveFunctions returns a list of functions with active jobs

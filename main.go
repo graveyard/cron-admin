@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/Clever/cron-admin/server"
 	"gopkg.in/mgo.v2"
@@ -33,6 +34,7 @@ func dialAtlas(envVarPrefix string) (*mgo.Session, error) {
 	}
 	dialInfo.Username = username
 	dialInfo.Password = password
+	dialInfo.Timeout = 10 * time.Second
 
 	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
@@ -45,8 +47,9 @@ func dialAtlas(envVarPrefix string) (*mgo.Session, error) {
 func main() {
 	legacyDB, err := dialAtlas("LEGACY")
 	if err != nil {
-		log.Fatalf("failed to connect to Legacy DB: %s", err)
+		log.Fatalf("failed to connect to legacy DB: %s", err)
 	}
+	log.Printf("connected to Legacy DB")
 
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {

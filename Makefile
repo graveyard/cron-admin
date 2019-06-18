@@ -18,15 +18,12 @@ clean:
 build: clean
 	go build -o bin/$(EXECUTABLE) $(PKG)
 
-
-
 start-test-db:
 	docker stop cron-admin-mongo; docker rm cron-admin-mongo; docker run --name cron-admin-mongo -p 27017:27017 -d mongo
 
 test: $(PKGS)
 $(PKGS): golang-test-all-strict-deps
 	$(call golang-test-all-strict,$@)
-
 
 run: build
 	PORT=8080 bin/$(EXECUTABLE)
