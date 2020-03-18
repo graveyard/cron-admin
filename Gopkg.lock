@@ -17,12 +17,6 @@
   revision = "32d9c273155a0506d27cf73dd1246e86a470997e"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/segmentio/go-env"
-  packages = ["."]
-  revision = "ea0600a7760cd15ccca9057be4a87d68e95ee876"
-
-[[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "f5520455607c0233cb6d7b056f71b22c1d265ef1"
@@ -40,10 +34,10 @@
   revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
 
 [[projects]]
+  branch = "master"
   name = "github.com/xeipuuv/gojsonschema"
   packages = ["."]
-  revision = "f971f3cd73b2899de6923801c147f075263e0c50"
-  version = "v1.1.0"
+  revision = "b537c054d4b486d62f64a76b8d48fdf38a0ea99d"
 
 [[projects]]
   name = "gopkg.in/Clever/kayvee-go.v6"
@@ -68,12 +62,12 @@
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "53403b58ad1b561927d19068c655246f2db79d48"
+  version = "v2.2.8"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0fd762c723bd3d9c39563ab12d9d892f5f5b67571f3b2fdd39a6474ab449fc40"
+  inputs-digest = "a56956e1b62bb76e8c3b16e6926ac665c8720d2d28c393a9c34725a8aa4574f3"
   solver-name = "gps-cdcl"
   solver-version = 1
