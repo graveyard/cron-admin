@@ -31,6 +31,7 @@ var AddForm = React.createClass({
     var crontime = this.refs.crontime.getInputDOMNode().value;
     var workload = this.refs.workload.getInputDOMNode().value.trim();
     var backend = this.refs.backend.getValue();
+    var timezone = this.refs.timezone.getValue();
 
     if (!this.state.json_workload_checked && this.raiseJSONWorkloadWarning(workload)) {
       this.setState({json_workload_checked:true});
@@ -40,7 +41,7 @@ var AddForm = React.createClass({
     $.ajax({
       url: "/jobs",
       type: "POST",
-      data: {Function: this.props.function, CronTime: crontime, Workload: workload, Backend: backend},
+      data: {Function: this.props.function, CronTime: crontime, Workload: workload, Backend: backend, TimeZone: timezone},
       dataType: "json",
       success: function(data) {
         this.props.getJobDetails(this.props.function);
@@ -99,6 +100,11 @@ var AddForm = React.createClass({
         <label>Cron Time</label>
         <Input hasFeedback help={this.state.cron_check.message} bsStyle={this.state.cron_check.status}
           onChange={this.validateCron} ref="crontime" type="text" placeholder={crontime_placeholder} required />
+        <label>Time Zone</label>
+        <Input type="select" ref="timezone">
+          <option value="America/Los_Angeles">America/Los_Angeles</option>
+          <option value="UTC">UTC</option>
+        </Input>
         <label>Workload</label>
         <Input ref="workload" type="textarea" placeholder={workload_placeholder} />
         <label>Backend</label>
@@ -192,7 +198,7 @@ var CronRow = React.createClass({
         <td>
           {job.CronTime}
           <hr></hr>
-          {cronString}
+          {cronString} ({job.TimeZone})
         </td>
         <td id="workload">{workload}</td>
         <td>{this.formatTime(job.Created)}</td>
