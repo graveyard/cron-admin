@@ -7,7 +7,7 @@ env:
 - PORT
 resources:
   cpu: 0.1
-  memory: 100
+  max_mem: 0.1
 expose:
 - name: http
   port: 80
