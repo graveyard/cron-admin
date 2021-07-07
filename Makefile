@@ -29,5 +29,5 @@ run: build
 	PORT=8080 bin/$(EXECUTABLE)
 
 
-install_deps: golang-dep-vendor-deps
-	$(call golang-dep-vendor)
+install_deps:
+	go mod vendor
