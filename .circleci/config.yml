@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/Clever/cron-admin
     docker:
-    - image: circleci/golang:1.13-stretch
+    - image: circleci/golang:1.16-stretch
     - image: circleci/mongo:3.2.20-jessie-ram
     environment:
       GOPRIVATE: github.com/Clever/*

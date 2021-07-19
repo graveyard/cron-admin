@@ -6,7 +6,7 @@ SHELL := /bin/bash
 PKG := github.com/Clever/cron-admin
 PKGS := $(shell go list ./... | grep -v /vendor)
 EXECUTABLE := $(shell basename $(PKG))
-$(eval $(call golang-version-check,1.13))
+$(eval $(call golang-version-check,1.16))
 
 export MONGO_TEST_DB ?= http://127.0.0.1:27017
 
